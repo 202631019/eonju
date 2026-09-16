@@ -3,355 +3,813 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>오늘 먹을 저녁 메뉴 추천 🍽️</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <title>학원 땡땡이 대작전 (Academy Escape)</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Jua&display=swap');
+
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --code-bg: #090d16;
-            --primary-color: #ff5252;
-            --primary-hover: #ff7878;
-            --accent-green: #4ade80;
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --border-color: #334155;
+            --bg-color: #1a1a2e;
+            --panel-bg: #16213e;
+            --accent-color: #e94560;
+            --text-color: #ffffff;
+            --sub-color: #0f3460;
         }
 
         * {
             box-sizing: border-box;
+            user-select: none;
             margin: 0;
             padding: 0;
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
         }
 
         body {
             background-color: var(--bg-color);
-            color: var(--text-main);
+            color: var(--text-color);
+            font-family: 'Jua', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px 20px;
+            overflow: hidden;
         }
 
-        .main-wrapper {
+        #game-container {
+            width: 800px;
+            height: 600px;
+            background-color: #000;
+            border: 4px solid #fff;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
+            overflow: hidden;
+        }
+
+        /* UI Overlay */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 680px;
+            height: 100%;
+            background: rgba(22, 33, 62, 0.95);
             display: flex;
             flex-direction: column;
-            gap: 30px;
-        }
-
-        /* 메인 추천 카드 영역 */
-        .container {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 40px 30px;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            padding: 20px;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border-color);
         }
 
-        .header h1 {
-            color: var(--text-main);
-            font-size: 1.8rem;
-            font-weight: 800;
-            margin-bottom: 8px;
+        .hidden {
+            display: none !important;
         }
 
-        .header p {
-            color: var(--text-sub);
-            font-size: 0.95rem;
-            margin-bottom: 28px;
+        h1 {
+            font-size: 42px;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0 #000;
         }
 
-        .result-box {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 30px 20px;
-            margin-bottom: 28px;
-            min-height: 200px;
+        p {
+            font-size: 20px;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .btn-group {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
         }
 
-        .emoji-display {
-            font-size: 4.8rem;
-            line-height: 1;
-            margin-bottom: 12px;
-            height: 85px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .food-name {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--text-main);
-            min-height: 36px;
-            word-break: keep-all;
-        }
-
-        .food-category {
-            display: inline-block;
-            margin-top: 6px;
-            padding: 4px 14px;
-            background: rgba(255, 82, 82, 0.15);
-            color: var(--primary-hover);
-            font-size: 0.85rem;
-            font-weight: 600;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 82, 82, 0.3);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .food-category.visible {
-            opacity: 1;
-        }
-
-        .btn-recommend {
-            background: var(--primary-color);
-            color: #FFFFFF;
+        .btn {
+            background-color: var(--accent-color);
+            color: #fff;
             border: none;
-            width: 100%;
-            padding: 16px 0;
-            font-size: 1.15rem;
-            font-weight: 700;
-            border-radius: 14px;
+            padding: 12px 24px;
+            font-size: 22px;
+            font-family: 'Jua', sans-serif;
+            border-radius: 5px;
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(255, 82, 82, 0.3);
-            transition: all 0.2s ease;
+            transition: transform 0.1s, background-color 0.2s;
+            box-shadow: 0 4px 0 #900c3f;
         }
 
-        .btn-recommend:hover {
-            background: var(--primary-hover);
+        .btn:hover {
+            background-color: #ff6b81;
             transform: translateY(-2px);
         }
 
-        /* 하단 코드 복사 영역 */
-        .code-section {
-            background: var(--card-bg);
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 0 0 #900c3f;
         }
 
-        .code-header {
-            background: #111827;
-            padding: 12px 20px;
+        .btn-sub {
+            background-color: var(--sub-color);
+            box-shadow: 0 4px 0 #08203e;
+        }
+
+        .btn-sub:hover {
+            background-color: #1f4287;
+        }
+
+        /* HUD */
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border-color);
+            z-index: 5;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            pointer-events: none;
         }
 
-        .code-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-sub);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .hud-item {
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 0 #000;
         }
 
-        .code-title::before {
-            content: "";
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #ef4444;
-            box-shadow: 15px 0 0 #f59e0b, 30px 0 0 #10b981;
-            margin-right: 25px;
+        canvas {
+            display: block;
         }
 
-        .copy-btn {
-            background: #334155;
-            color: #f8fafc;
-            border: none;
-            padding: 6px 14px;
-            font-size: 0.8rem;
-            font-weight: 600;
+        /* Stage 3 Custom UI */
+        #stage3-ui {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .qte-btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .qte-btn {
+            background: var(--sub-color);
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 15px;
+            font-size: 18px;
+            font-family: 'Jua', sans-serif;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            transition: all 0.2s;
         }
 
-        .copy-btn:hover {
-            background: #475569;
+        .qte-btn:hover {
+            background: var(--accent-color);
         }
 
-        .copy-btn.copied {
-            background: #16a34a;
-            color: #ffffff;
+        #timer-bar-container {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            margin-top: 15px;
+            overflow: hidden;
         }
 
-        .code-container {
-            position: relative;
-            max-height: 300px;
-            overflow-y: auto;
-            background: var(--code-bg);
+        #timer-bar {
+            width: 100%;
+            height: 100%;
+            background: #4ecc71;
+            transition: width 0.1s linear;
         }
 
-        pre {
-            margin: 0;
-            padding: 20px;
-        }
-
-        code {
-            font-family: 'Fira Code', monospace, sans-serif;
-            font-size: 0.85rem;
-            color: #e2e8f0;
-            line-height: 1.6;
-            white-space: pre;
-        }
-
-        /* 애니메이션 효과 */
-        .bounce {
-            animation: bounce 0.5s ease;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
+        .instructions {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px dashed var(--accent-color);
+            margin-bottom: 20px;
+            max-width: 500px;
         }
     </style>
 </head>
 <body>
 
-    <div class="main-wrapper">
-        <!-- 메뉴 추천 카드 -->
-        <div class="container">
-            <div class="header">
-                <h1>오늘 뭐 먹지? 🍽️</h1>
-                <p>결정 장애를 위한 오늘의 저녁 메뉴 추천!</p>
-            </div>
-
-            <div class="result-box">
-                <div id="emoji" class="emoji-display">❓</div>
-                <div id="food-name" class="food-name">버튼을 눌러주세요!</div>
-                <div id="category" class="food-category">카테고리</div>
-            </div>
-
-            <button id="recommend-btn" class="btn-recommend" onclick="getRecommendation()">
-                저녁 메뉴 추천 🎲
-            </button>
+    <div id="game-container">
+        <!-- HUD -->
+        <div id="hud" class="hidden">
+            <div class="hud-item" id="stage-display">STAGE: 1</div>
+            <div class="hud-item" id="score-display">SCORE: 0</div>
+            <div class="hud-item" id="status-display">상태: 이동 가능</div>
         </div>
 
-        <!-- 코드 스니펫 및 복사 버튼 -->
-        <div class="code-section">
-            <div class="code-header">
-                <span class="code-title">소스 코드 (HTML / CSS / JS)</span>
-                <button class="copy-btn" id="copy-btn" onclick="copySourceCode()">
-                    📋 코드 복사하기
-                </button>
+        <!-- Start Screen -->
+        <div id="start-screen" class="overlay">
+            <h1>🏫 학원 땡땡이 대작전</h1>
+            <p>오늘따라 너무 가기 싫은 학원...<br>선생님의 눈을 피하고 장애물을 넘어 PC방으로 탈출하자!</p>
+            <div class="instructions">
+                <p style="font-size:16px; margin:0;">
+                    🎮 <strong>조작법</strong><br>
+                    1단계: Direction Keys(이동), Space(숨기)<br>
+                    2단계: Left/Right Key(좌우 피하기)<br>
+                    3단계: 마우스로 핑계 선택
+                </p>
             </div>
-            <div class="code-container">
-                <pre><code id="code-block"></code></pre>
+            <div class="btn-group">
+                <button class="btn" onclick="startGame(1)">처음부터 시작</button>
+                <button class="btn btn-sub hidden" id="continue-btn" onclick="continueGame()">이어서 하기 (STAGE <span id="saved-stage-num">1</span>)</button>
             </div>
         </div>
+
+        <!-- Stage Intro Screen -->
+        <div id="stage-intro" class="overlay hidden">
+            <h1 id="intro-title">STAGE 1</h1>
+            <p id="intro-desc">설명</p>
+            <button class="btn" onclick="startCurrentStage()">시작</button>
+        </div>
+
+        <!-- Stage 3 QTE Screen (HTML Overlay) -->
+        <div id="stage3-screen" class="overlay hidden">
+            <h1 style="font-size: 28px; color: #f1c40f;">🚨 선생님에게 빌미를 잡혔다!</h1>
+            <p id="qte-question" style="font-size: 22px; margin-top: 10px;">"너 지금 어디 가니?"</p>
+            <div id="timer-bar-container">
+                <div id="timer-bar"></div>
+            </div>
+            <div id="stage3-ui">
+                <div class="qte-btn-group" id="qte-options">
+                    <!-- Dynamic Buttons -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="overlay hidden">
+            <h1 style="color: #e74c3c;">❌ 들켰다!</h1>
+            <p id="fail-reason">선생님에게 잡혀서 강제로 보강 수업에 들어갔습니다...</p>
+            <div class="btn-group">
+                <button class="btn" onclick="restartStage()">현재 단계 재시도 🔄</button>
+                <button class="btn btn-sub" onclick="initGame()">처음 화면으로</button>
+            </div>
+        </div>
+
+        <!-- Game Clear Screen -->
+        <div id="game-clear-screen" class="overlay hidden">
+            <h1 style="color: #2ecc71;">🎉 탈출 성공!</h1>
+            <p>축하합니다! 무사히 학원을 빠져나왔습니다.</p>
+            <p id="final-score" style="color: #f1c40f; font-size: 28px;">최종 점수: 0</p>
+            <p id="achievement" style="font-size: 24px; color: #e94560; margin-top: 10px;"></p>
+            <button class="btn" onclick="resetSaveAndInit()">처음으로</button>
+        </div>
+
+        <!-- Main Canvas -->
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
     </div>
 
     <script>
-        const menuList = [
-            { name: "삼겹살", emoji: "🥓", category: "한식" },
-            { name: "치킨", emoji: "🍗", category: "야식/치맥" },
-            { name: "피자", emoji: "🍕", category: "양식" },
-            { name: "초밥", emoji: "🍣", category: "일식" },
-            { name: "짜장면 & 탕수육", emoji: "🍜", category: "중식" },
-            { name: "떡볶이", emoji: "🍢", category: "분식" },
-            { name: "햄버거", emoji: "🍔", category: "패스트푸드" },
-            { name: "돈까스", emoji: "🥩", category: "일식/양식" },
-            { name: "김치찌개", emoji: "🍲", category: "한식" },
-            { name: "부대찌개", emoji: "🥘", category: "한식" },
-            { name: "파스타", emoji: "🍝", category: "양식" },
-            { name: "쌀국수", emoji: "🍜", category: "아시안" },
-            { name: "마라탕", emoji: "🍲", category: "중식" },
-            { name: "족발 & 보쌈", emoji: "🍖", category: "한식" },
-            { name: "곱창 / 대창", emoji: "🍳", category: "한식" },
-            { name: "카레", emoji: "🍛", category: "일식/아시안" },
-            { name: "타코", emoji: "🌮", category: "멕시칸" },
-            { name: "스테이크", emoji: "🥩", category: "양식" },
-            { name: "샤브샤브", emoji: "🥬", category: "한식/일식" },
-            { name: "비빔밥", emoji: "🥗", category: "한식" }
-        ];
+        // --- Sound Synthesizer (Web Audio API) ---
+        class SoundFX {
+            constructor() {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            }
 
-        let isSpinning = false;
+            playBeep(freq = 440, type = 'sine', duration = 0.1) {
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            }
 
-        function getRecommendation() {
-            if (isSpinning) return;
-            isSpinning = true;
+            playSuccess() {
+                this.playBeep(523.25, 'triangle', 0.1);
+                setTimeout(() => this.playBeep(659.25, 'triangle', 0.1), 100);
+                setTimeout(() => this.playBeep(783.99, 'triangle', 0.2), 200);
+            }
 
-            const emojiEl = document.getElementById('emoji');
-            const foodNameEl = document.getElementById('food-name');
-            const categoryEl = document.getElementById('category');
-            const btn = document.getElementById('recommend-btn');
+            playFail() {
+                this.playBeep(300, 'sawtooth', 0.15);
+                setTimeout(() => this.playBeep(200, 'sawtooth', 0.3), 150);
+            }
 
-            categoryEl.classList.remove('visible');
-            btn.disabled = true;
-            btn.innerText = "추천 중... 🎲";
+            playStep() {
+                this.playBeep(150, 'sine', 0.05);
+            }
+        }
 
-            let counter = 0;
-            const duration = 15;
-            const interval = setInterval(() => {
-                const randomTemp = menuList[Math.floor(Math.random() * menuList.length)];
-                emojiEl.innerText = randomTemp.emoji;
-                foodNameEl.innerText = randomTemp.name;
-                counter++;
+        const sound = new SoundFX();
 
-                if (counter >= duration) {
-                    clearInterval(interval);
-                    
-                    const finalSelection = menuList[Math.floor(Math.random() * menuList.length)];
-                    emojiEl.innerText = finalSelection.emoji;
-                    foodNameEl.innerText = finalSelection.name;
-                    categoryEl.innerText = finalSelection.category;
-                    categoryEl.classList.add('visible');
+        // --- Game Framework ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-                    emojiEl.classList.add('bounce');
-                    setTimeout(() => emojiEl.classList.remove('bounce'), 500);
+        let currentStage = 1;
+        let score = 0;
+        let stageStartScore = 0; // 해당 단계 시작 시점의 점수 (재시도용)
+        let gameLoopId = null;
+        let keys = {};
 
-                    btn.disabled = false;
-                    btn.innerText = "다시 추천받기 🎲";
-                    isSpinning = false;
+        // Inputs
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        // --- Save System (localStorage) ---
+        function saveProgress(stage, currentScore) {
+            localStorage.setItem('academy_escape_stage', stage);
+            localStorage.setItem('academy_escape_score', currentScore);
+        }
+
+        function loadSaveData() {
+            const savedStage = localStorage.getItem('academy_escape_stage');
+            const savedScore = localStorage.getItem('academy_escape_score');
+            if (savedStage && parseInt(savedStage) > 1) {
+                document.getElementById('continue-btn').classList.remove('hidden');
+                document.getElementById('saved-stage-num').innerText = savedStage;
+                return { stage: parseInt(savedStage), score: parseInt(savedScore) || 0 };
+            }
+            return null;
+        }
+
+        function resetSaveAndInit() {
+            localStorage.removeItem('academy_escape_stage');
+            localStorage.removeItem('academy_escape_score');
+            document.getElementById('continue-btn').classList.add('hidden');
+            initGame();
+        }
+
+        function updateHUD() {
+            document.getElementById('stage-display').innerText = `STAGE: ${currentStage}`;
+            document.getElementById('score-display').innerText = `SCORE: ${score}`;
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.overlay').forEach(el => el.classList.add('hidden'));
+            if (id) document.getElementById(id).classList.remove('hidden');
+        }
+
+        function initGame() {
+            currentStage = 1;
+            score = 0;
+            stageStartScore = 0;
+            showScreen('start-screen');
+            document.getElementById('hud').classList.add('hidden');
+            loadSaveData();
+        }
+
+        function startGame(stage = 1, initialScore = 0) {
+            currentStage = stage;
+            score = initialScore;
+            stageStartScore = initialScore;
+            document.getElementById('hud').classList.remove('hidden');
+            setupStageIntro(currentStage);
+        }
+
+        function continueGame() {
+            const data = loadSaveData();
+            if (data) {
+                startGame(data.stage, data.score);
+            } else {
+                startGame(1, 0);
+            }
+        }
+
+        function setupStageIntro(stageNum) {
+            currentStage = stageNum;
+            updateHUD();
+            const intro = document.getElementById('stage-intro');
+            const title = document.getElementById('intro-title');
+            const desc = document.getElementById('intro-desc');
+
+            if (stageNum === 1) {
+                title.innerText = "STAGE 1: 복도 몰래 빠져나가기";
+                desc.innerHTML = "선생님이 칠판을 볼 때만 이동하세요!<br>뒤돌아볼 때 <strong>Space키</strong>를 눌러 상자 뒤에 숨어야 합니다.";
+            } else if (stageNum === 2) {
+                title.innerText = "STAGE 2: 하원길 장애물 피하기";
+                desc.innerHTML = "좌우 방향키(←, →)로 셔틀버스, 엄카(?), 숙제 폭탄을 피하세요!<br><strong>버블티🧋</strong>를 먹으면 점수 보너스!";
+            } else if (stageNum === 3) {
+                title.innerText = "STAGE 3: 핑계대기 최후의 배틀";
+                desc.innerHTML = "선생님의 의심 공격! 제한시간 내에 가장 그럴듯한 핑계를 선택하세요!";
+            }
+            showScreen('stage-intro');
+        }
+
+        function startCurrentStage() {
+            showScreen(null);
+            if (gameLoopId) cancelAnimationFrame(gameLoopId);
+
+            if (currentStage === 1) Stage1.init();
+            else if (currentStage === 2) Stage2.init();
+            else if (currentStage === 3) Stage3.init();
+        }
+
+        function gameOver(reason) {
+            sound.playFail();
+            if (gameLoopId) cancelAnimationFrame(gameLoopId);
+            if (Stage3.timerInterval) clearInterval(Stage3.timerInterval);
+            
+            // 점수를 해당 단계 시작할 때 점수로 복구
+            score = stageStartScore;
+            updateHUD();
+
+            document.getElementById('fail-reason').innerText = reason;
+            showScreen('game-over-screen');
+        }
+
+        function restartStage() {
+            setupStageIntro(currentStage);
+        }
+
+        function clearStage() {
+            sound.playSuccess();
+            if (gameLoopId) cancelAnimationFrame(gameLoopId);
+            score += 1000;
+            
+            if (currentStage < 3) {
+                const nextStage = currentStage + 1;
+                saveProgress(nextStage, score); // 진행상황 자동 저장!
+                stageStartScore = score;
+                setupStageIntro(nextStage);
+            } else {
+                localStorage.removeItem('academy_escape_stage');
+                localStorage.removeItem('academy_escape_score');
+                showGameClear();
+            }
+        }
+
+        function showGameClear() {
+            document.getElementById('hud').classList.add('hidden');
+            document.getElementById('final-score').innerText = `최종 점수: ${score}`;
+            
+            let ach = "칭호: 일반 탈출러";
+            if (score >= 4000) ach = "🏆 칭호: 전설의 땡땡이 마스터";
+            else if (score >= 3000) ach = "🎖️ 칭호: 스텔스 핑계의 왕";
+            
+            document.getElementById('achievement').innerText = ach;
+            showScreen('game-clear-screen');
+        }
+
+        // ==========================================
+        // STAGE 1: 복도 탈출
+        // ==========================================
+        const Stage1 = {
+            player: { x: 50, y: 450, w: 40, h: 60, speed: 4, isHiding: false },
+            teacher: { state: 'writing', timer: 0, nextSwitch: 100 },
+            hidingSpots: [{ x: 250, w: 60 }, { x: 500, w: 60 }],
+            exitX: 720,
+
+            init() {
+                this.player.x = 50;
+                this.teacher.state = 'writing';
+                this.teacher.timer = 0;
+                this.loop();
+            },
+
+            loop() {
+                this.update();
+                this.render();
+                if (currentStage === 1) gameLoopId = requestAnimationFrame(() => this.loop());
+            },
+
+            update() {
+                this.teacher.timer++;
+                if (this.teacher.timer > this.teacher.nextSwitch) {
+                    this.teacher.timer = 0;
+                    if (this.teacher.state === 'writing') {
+                        this.teacher.state = 'warning';
+                        this.teacher.nextSwitch = 45;
+                    } else if (this.teacher.state === 'warning') {
+                        this.teacher.state = 'looking';
+                        this.teacher.nextSwitch = 80 + Math.random() * 60;
+                    } else {
+                        this.teacher.state = 'writing';
+                        this.teacher.nextSwitch = 100 + Math.random() * 100;
+                    }
                 }
-            }, 80);
-        }
 
-        // 전체 소스 코드를 하단 코드 상자에 자동으로 넣어줌
-        window.addEventListener('DOMContentLoaded', () => {
-            const fullHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-            document.getElementById('code-block').textContent = fullHtml;
-        });
+                this.player.isHiding = keys['Space'];
+                
+                if (!this.player.isHiding) {
+                    if (keys['ArrowRight']) {
+                        this.player.x += this.player.speed;
+                        if (Math.random() < 0.1) sound.playStep();
+                    }
+                    if (keys['ArrowLeft']) this.player.x -= this.player.speed;
+                }
 
-        // 클립보드 복사 함수
-        function copySourceCode() {
-            const codeText = document.getElementById('code-block').textContent;
-            navigator.clipboard.writeText(codeText).then(() => {
-                const btn = document.getElementById('copy-btn');
-                btn.innerHTML = "✅ 복사 완료!";
-                btn.classList.add('copied');
+                this.player.x = Math.max(20, Math.min(740, this.player.x));
 
-                setTimeout(() => {
-                    btn.innerHTML = "📋 코드 복사하기";
-                    btn.classList.remove('copied');
-                }, 2000);
-            }).catch(err => {
-                alert('코드 복사에 실패했습니다.');
-            });
-        }
+                const statusEl = document.getElementById('status-display');
+                if (this.player.isHiding) statusEl.innerText = "상태: 숨는 중 📦";
+                else statusEl.innerText = "상태: 이동 가능 🏃";
+
+                if (this.teacher.state === 'looking' && !this.player.isHiding) {
+                    let safe = false;
+                    for (let spot of this.hidingSpots) {
+                        if (this.player.x >= spot.x - 10 && (this.player.x + this.player.w) <= (spot.x + spot.w + 10)) {
+                            safe = true;
+                            break;
+                        }
+                    }
+                    if (!safe) {
+                        gameOver("선생님이 뒤돌아봤을 때 움직이다가 걸렸습니다!");
+                    }
+                }
+
+                if (this.player.x >= this.exitX) {
+                    clearStage();
+                }
+            },
+
+            render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#34495e';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(0, 400, canvas.width, 200);
+
+                ctx.fillStyle = '#7f8c8d';
+                ctx.fillRect(700, 320, 80, 150);
+
+                ctx.font = '30px Jua';
+                if (this.teacher.state === 'writing') {
+                    ctx.fillStyle = '#2ecc71';
+                    ctx.fillText('👨‍🏫 판서 중 (안 보는 중)', 500, 100);
+                } else if (this.teacher.state === 'warning') {
+                    ctx.fillStyle = '#f1c40f';
+                    ctx.fillText('👨‍🏫 힐끔... (뒤돌기 직전!)', 500, 100);
+                } else {
+                    ctx.fillStyle = '#e74c3c';
+                    ctx.fillText('👨‍🏫 감시 중! (움직이지 마!)', 500, 100);
+                    ctx.fillStyle = 'rgba(231, 76, 60, 0.2)';
+                    ctx.fillRect(0, 0, 700, 600);
+                }
+
+                ctx.fillStyle = '#d35400';
+                for (let spot of this.hidingSpots) {
+                    ctx.fillRect(spot.x, 420, spot.w, 80);
+                    ctx.fillStyle = '#e67e22';
+                    ctx.fillText('📦', spot.x + 15, 470);
+                    ctx.fillStyle = '#d35400';
+                }
+
+                ctx.fillStyle = '#2ecc71';
+                ctx.fillRect(760, 400, 20, 100);
+                ctx.fillStyle = '#fff';
+                ctx.font = '16px Jua';
+                ctx.fillText('출구', 755, 390);
+
+                if (this.player.isHiding) {
+                    ctx.fillStyle = '#95a5a6';
+                    ctx.fillRect(this.player.x, this.player.y + 20, this.player.w, 40);
+                } else {
+                    ctx.fillStyle = '#3498db';
+                    ctx.fillRect(this.player.x, this.player.y, this.player.w, this.player.h);
+                    ctx.fillStyle = '#f1c40f';
+                    ctx.beginPath();
+                    ctx.arc(this.player.x + 20, this.player.y - 10, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        };
+
+        // ==========================================
+        // STAGE 2: 길거리 피하기
+        // ==========================================
+        const Stage2 = {
+            player: { lane: 1, y: 480, w: 50, h: 70 },
+            lanes: [200, 400, 600],
+            obstacles: [],
+            items: [],
+            spawnTimer: 0,
+            distanceLeft: 100,
+
+            init() {
+                this.player.lane = 1;
+                this.obstacles = [];
+                this.items = [];
+                this.spawnTimer = 0;
+                this.distanceLeft = 100;
+                this.lastKey = false;
+                this.loop();
+            },
+
+            loop() {
+                this.update();
+                this.render();
+                if (currentStage === 2) gameLoopId = requestAnimationFrame(() => this.loop());
+            },
+
+            update() {
+                if (keys['ArrowLeft'] && !this.lastKey) {
+                    if (this.player.lane > 0) this.player.lane--;
+                    this.lastKey = true;
+                } else if (keys['ArrowRight'] && !this.lastKey) {
+                    if (this.player.lane < 2) this.player.lane++;
+                    this.lastKey = true;
+                } else if (!keys['ArrowLeft'] && !keys['ArrowRight']) {
+                    this.lastKey = false;
+                }
+
+                this.distanceLeft -= 0.05;
+                if (this.distanceLeft <= 0) {
+                    clearStage();
+                    return;
+                }
+
+                this.spawnTimer++;
+                if (this.spawnTimer > 40) {
+                    this.spawnTimer = 0;
+                    const lane = Math.floor(Math.random() * 3);
+                    if (Math.random() < 0.7) {
+                        const types = ['🚌 학원버스', '🚗 엄마차', '📚 숙제폭탄'];
+                        this.obstacles.push({
+                            lane: lane,
+                            y: -100,
+                            speed: 6 + Math.random() * 3,
+                            type: types[Math.floor(Math.random() * types.length)]
+                        });
+                    } else {
+                        this.items.push({ lane: lane, y: -100, speed: 5 });
+                    }
+                }
+
+                for (let i = this.obstacles.length - 1; i >= 0; i--) {
+                    let obs = this.obstacles[i];
+                    obs.y += obs.speed;
+
+                    if (obs.lane === this.player.lane && obs.y > 400 && obs.y < 540) {
+                        gameOver(`${obs.type}에 충돌하여 붙잡혔습니다!`);
+                        return;
+                    }
+
+                    if (obs.y > 650) this.obstacles.splice(i, 1);
+                }
+
+                for (let i = this.items.length - 1; i >= 0; i--) {
+                    let item = this.items[i];
+                    item.y += item.speed;
+
+                    if (item.lane === this.player.lane && item.y > 420 && item.y < 540) {
+                        score += 200;
+                        sound.playBeep(800, 'sine', 0.1);
+                        this.items.splice(i, 1);
+                        updateHUD();
+                    } else if (item.y > 650) {
+                        this.items.splice(i, 1);
+                    }
+                }
+
+                document.getElementById('status-display').innerText = `남은 거리: ${Math.ceil(this.distanceLeft)}m`;
+            },
+
+            render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#7f8c8d';
+                ctx.fillRect(100, 0, 600, 600);
+
+                ctx.strokeStyle = '#fff';
+                ctx.setLineDash([20, 20]);
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(300, 0); ctx.lineTo(300, 600);
+                ctx.moveTo(500, 0); ctx.lineTo(500, 600);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.font = '24px Jua';
+                for (let obs of this.obstacles) {
+                    ctx.fillStyle = '#e74c3c';
+                    ctx.fillRect(this.lanes[obs.lane] - 40, obs.y, 80, 60);
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText(obs.type, this.lanes[obs.lane] - 35, obs.y + 35);
+                }
+
+                for (let item of this.items) {
+                    ctx.fillStyle = '#f39c12';
+                    ctx.beginPath();
+                    ctx.arc(this.lanes[item.lane], item.y + 20, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText('🧋', this.lanes[item.lane] - 12, item.y + 28);
+                }
+
+                const px = this.lanes[this.player.lane];
+                ctx.fillStyle = '#3498db';
+                ctx.fillRect(px - 25, this.player.y, this.player.w, this.player.h);
+                ctx.fillStyle = '#f1c40f';
+                ctx.beginPath();
+                ctx.arc(px, this.player.y - 10, 15, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        };
+
+        // ==========================================
+        // STAGE 3: 핑계대기 배틀
+        // ==========================================
+        const Stage3 = {
+            currentQuestion: 0,
+            timeLeft: 100,
+            timerInterval: null,
+            questions: [
+                {
+                    q: "선생님: \"너 가방 싸서 어디 가니?!\"",
+                    options: [
+                        { text: "배가 너무 아파서 병원 가요! 🤢", correct: true, score: 300 },
+                        { text: "PC방 신메뉴 먹으러 가요 🍔", correct: false, reason: "솔직함이 과해서 정학당했습니다." },
+                        { text: "지구가 저를 불러서요 🦸", correct: false, reason: "선생님이 정신 상담을 예약하셨습니다." },
+                        { text: "오늘 학원 쉬는 날 아니었나요? 🤔", correct: false, reason: "뻔뻔해서 꿀밤을 맞았습니다." }
+                    ]
+                },
+                {
+                    q: "선생님: \"너 오늘 단어 시험은 어쩌고!\"",
+                    options: [
+                        { text: "꿈속에서 이미 다 맞혔습니다 😴", correct: false, reason: "자물쇠로 잠긴 교실로 끌려갔습니다." },
+                        { text: "머리가 아파서 단어가 안 외워져요 🤕", correct: true, score: 300 },
+                        { text: "단어가 제 마음을 거부합니다 💔", correct: false, reason: "감수성이 풍부하다며 시를 쓰게 되었습니다." },
+                        { text: "재시험 때 100점 맞을게요! 💯", correct: true, score: 400 }
+                    ]
+                },
+                {
+                    q: "선생님: \"엄마한테 전화해서 확인해본다?\"",
+                    options: [
+                        { text: "엄마도 허락하셨어요! (구라) 📱", correct: true, score: 500 },
+                        { text: "제발 그것만은... 😭", correct: false, reason: "울다가 엄마한테 바로 전화가 갔습니다." },
+                        { text: "전화기 배터리 없으실 텐데요 🔋", correct: false, reason: "선생님이 충전기를 꺼내셨습니다." },
+                        { text: "네! 엄마랑 지금 같이 병원 가기로 했어요! 🏥", correct: true, score: 500 }
+                    ]
+                }
+            ],
+
+            init() {
+                this.currentQuestion = 0;
+                showScreen('stage3-screen');
+                this.loadQuestion();
+            },
+
+            loadQuestion() {
+                if (this.currentQuestion >= this.questions.length) {
+                    clearInterval(this.timerInterval);
+                    clearStage();
+                    return;
+                }
+
+                const qData = this.questions[this.currentQuestion];
+                document.getElementById('qte-question').innerText = qData.q;
+                
+                const container = document.getElementById('qte-options');
+                container.innerHTML = '';
+
+                const shuffled = [...qData.options].sort(() => Math.random() - 0.5);
+
+                shuffled.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'qte-btn';
+                    btn.innerText = opt.text;
+                    btn.onclick = () => this.selectOption(opt);
+                    container.appendChild(btn);
+                });
+
+                this.timeLeft = 100;
+                clearInterval(this.timerInterval);
+                this.timerInterval = setInterval(() => {
+                    this.timeLeft -= 2;
+                    document.getElementById('timer-bar').style.width = `${this.timeLeft}%`;
+                    if (this.timeLeft <= 0) {
+                        clearInterval(this.timerInterval);
+                        gameOver("시간 초과! 말을 더듬다가 들켰습니다!");
+                    }
+                }, 100);
+            },
+
+            selectOption(opt) {
+                clearInterval(this.timerInterval);
+                if (opt.correct) {
+                    score += opt.score;
+                    sound.playBeep(600, 'sine', 0.1);
+                    this.currentQuestion++;
+                    this.loadQuestion();
+                } else {
+                    gameOver(opt.reason);
+                }
+            }
+        };
+
+        // Initialize App
+        initGame();
     </script>
 </body>
 </html>
