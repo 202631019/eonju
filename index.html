@@ -1,815 +1,1021 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
+<html lang="ko"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>학원 땡땡이 대작전 (Academy Escape)</title>
+    <title>길잡이 - 나만의 따뜻한 진로 네비게이션</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Noto Sans KR & Fredoka for cute playful vibes) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&amp;family=Noto+Sans+KR:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        spring: {
+                            bg: '#FFFDF9',
+                            card: '#FFFFFF',
+                            pink: '#FFEDF3',
+                            pinkDark: '#FF9EBB',
+                            peach: '#FFE8D6',
+                            peachDark: '#FF8A65',
+                            mint: '#E8F5E9',
+                            mintDark: '#4CAF50',
+                            yellow: '#FFF8E1',
+                            yellowDark: '#FFC107',
+                            lavender: '#F3E5F5',
+                            textMain: '#2D3748',
+                            textSub: '#718096',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                        cute: ['Fredoka', 'Noto Sans KR', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 30px -5px rgba(255, 182, 193, 0.15), 0 4px 12px rgba(0, 0, 0, 0.03)',
+                        'card-hover': '0 20px 35px -10px rgba(255, 158, 187, 0.25)',
+                        'hippo': '0 8px 20px rgba(255, 182, 193, 0.3)'
+                    }
+                }
+            }
+        }
+    </script>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Jua&display=swap');
-
-        :root {
-            --bg-color: #1a1a2e;
-            --panel-bg: #16213e;
-            --accent-color: #e94560;
-            --text-color: #ffffff;
-            --sub-color: #0f3460;
-        }
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Jua', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            overflow: hidden;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #FFFDF9;
+            color: #2D3748;
+            overflow-x: hidden;
         }
 
-        #game-container {
-            width: 800px;
-            height: 600px;
-            background-color: #000;
-            border: 4px solid #fff;
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes floatHippo {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-7px) rotate(1.5deg); }
+        }
+        
+        .hippo-float {
+            animation: floatHippo 4s ease-in-out infinite;
+        }
+
+        @keyframes wiggleEar {
+            0%, 80%, 100% { transform: rotate(0deg); }
+            85% { transform: rotate(-12deg); }
+            90% { transform: rotate(8deg); }
+            95% { transform: rotate(-5deg); }
+        }
+
+        .ear-left { transform-origin: bottom right; animation: wiggleEar 5s infinite; }
+        .ear-right { transform-origin: bottom left; animation: wiggleEar 5s infinite 0.2s; }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFF8E1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FFB6C1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF8A65;
+        }
+
+        .choice-btn.active {
+            background-color: #FFEDF3;
+            border-color: #FF9EBB;
+            color: #D81B60;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(255, 158, 187, 0.2);
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            background: #E2E8F0;
             border-radius: 8px;
-            position: relative;
-            box-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
-            overflow: hidden;
+            height: 8px;
         }
-
-        /* UI Overlay */
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(22, 33, 62, 0.95);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        h1 {
-            font-size: 42px;
-            color: var(--accent-color);
-            margin-bottom: 20px;
-            text-shadow: 3px 3px 0 #000;
-        }
-
-        p {
-            font-size: 20px;
-            margin-bottom: 15px;
-            line-height: 1.4;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .btn {
-            background-color: var(--accent-color);
-            color: #fff;
-            border: none;
-            padding: 12px 24px;
-            font-size: 22px;
-            font-family: 'Jua', sans-serif;
-            border-radius: 5px;
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 22px;
+            width: 22px;
+            border-radius: 50%;
+            background: #FF9EBB;
             cursor: pointer;
-            transition: transform 0.1s, background-color 0.2s;
-            box-shadow: 0 4px 0 #900c3f;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
         }
-
-        .btn:hover {
-            background-color: #ff6b81;
-            transform: translateY(-2px);
-        }
-
-        .btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 0 0 #900c3f;
-        }
-
-        .btn-sub {
-            background-color: var(--sub-color);
-            box-shadow: 0 4px 0 #08203e;
-        }
-
-        .btn-sub:hover {
-            background-color: #1f4287;
-        }
-
-        /* HUD */
-        #hud {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 5;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-            pointer-events: none;
-        }
-
-        .hud-item {
-            font-size: 22px;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 2px 2px 0 #000;
-        }
-
-        canvas {
-            display: block;
-        }
-
-        /* Stage 3 Custom UI */
-        #stage3-ui {
-            width: 100%;
-            max-width: 600px;
-        }
-
-        .qte-btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        .qte-btn {
-            background: var(--sub-color);
-            border: 2px solid #fff;
-            color: #fff;
-            padding: 15px;
-            font-size: 18px;
-            font-family: 'Jua', sans-serif;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .qte-btn:hover {
-            background: var(--accent-color);
-        }
-
-        #timer-bar-container {
-            width: 100%;
-            height: 20px;
-            background: #333;
-            border: 2px solid #fff;
-            border-radius: 10px;
-            margin-top: 15px;
-            overflow: hidden;
-        }
-
-        #timer-bar {
-            width: 100%;
-            height: 100%;
-            background: #4ecc71;
-            transition: width 0.1s linear;
-        }
-
-        .instructions {
-            background: rgba(0,0,0,0.5);
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px dashed var(--accent-color);
-            margin-bottom: 20px;
-            max-width: 500px;
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #FF8A65;
         }
     </style>
-</head>
-<body>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Noto Sans KR, sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.-bottom-10{bottom:-2.5rem}.-left-2{left:-0.5rem}.-right-10{right:-2.5rem}.-top-10{top:-2.5rem}.bottom-0{bottom:0px}.right-1\/4{right:25%}.right-5{right:1.25rem}.top-0{top:0px}.top-1\/2{top:50%}.top-5{top:1.25rem}.bottom-6{bottom:1.5rem}.right-6{right:1.5rem}.z-10{z-index:10}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.mb-1{margin-bottom:0.25rem}.ml-2{margin-left:0.5rem}.mr-1{margin-right:0.25rem}.mr-1\.5{margin-right:0.375rem}.mt-0\.5{margin-top:0.125rem}.mt-2{margin-top:0.5rem}.mt-4{margin-top:1rem}.mr-2{margin-right:0.5rem}.mt-12{margin-top:3rem}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-12{height:3rem}.h-14{height:3.5rem}.h-16{height:4rem}.h-2{height:0.5rem}.h-20{height:5rem}.h-28{height:7rem}.h-3{height:0.75rem}.h-36{height:9rem}.h-44{height:11rem}.h-48{height:12rem}.h-56{height:14rem}.h-64{height:16rem}.h-7{height:1.75rem}.h-9{height:2.25rem}.h-full{height:100%}.h-8{height:2rem}.max-h-\[90vh\]{max-height:90vh}.min-h-screen{min-height:100vh}.min-h-\[380px\]{min-height:380px}.w-0{width:0px}.w-10{width:2.5rem}.w-12{width:3rem}.w-14{width:3.5rem}.w-16{width:4rem}.w-2{width:0.5rem}.w-20{width:5rem}.w-28{width:7rem}.w-3{width:0.75rem}.w-36{width:9rem}.w-44{width:11rem}.w-48{width:12rem}.w-56{width:14rem}.w-64{width:16rem}.w-7{width:1.75rem}.w-9{width:2.25rem}.w-full{width:100%}.w-max{width:max-content}.w-8{width:2rem}.max-w-2xl{max-width:42rem}.max-w-5xl{max-width:64rem}.max-w-6xl{max-width:72rem}.max-w-xl{max-width:36rem}.flex-shrink-0{flex-shrink:0}.flex-grow{flex-grow:1}.-translate-y-1\/2{--tw-translate-y:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.translate-y-4{--tw-translate-y:1rem;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.rotate-45{--tw-rotate:45deg;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}@keyframes spin{to{transform:rotate(360deg)}}.animate-spin{animation:spin 1s linear infinite}.cursor-pointer{cursor:pointer}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-2{gap:0.5rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.space-x-2 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(0.5rem * var(--tw-space-x-reverse));margin-left:calc(0.5rem * calc(1 - var(--tw-space-x-reverse)))}.space-x-3 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(0.75rem * var(--tw-space-x-reverse));margin-left:calc(0.75rem * calc(1 - var(--tw-space-x-reverse)))}.space-x-4 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(1rem * var(--tw-space-x-reverse));margin-left:calc(1rem * calc(1 - var(--tw-space-x-reverse)))}.space-y-10 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2.5rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.space-y-8 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem * var(--tw-space-y-reverse))}.space-y-1 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.25rem * var(--tw-space-y-reverse))}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.rounded-md{border-radius:0.375rem}.border{border-width:1px}.border-4{border-width:4px}.border-b{border-bottom-width:1px}.border-l{border-left-width:1px}.border-t{border-top-width:1px}.border-amber-100{--tw-border-opacity:1;border-color:rgb(254 243 199 / var(--tw-border-opacity, 1))}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138 / var(--tw-border-opacity, 1))}.border-amber-200\/80{border-color:rgb(253 230 138 / 0.8)}.border-amber-300{--tw-border-opacity:1;border-color:rgb(252 211 77 / var(--tw-border-opacity, 1))}.border-emerald-100{--tw-border-opacity:1;border-color:rgb(209 250 229 / var(--tw-border-opacity, 1))}.border-gray-100{--tw-border-opacity:1;border-color:rgb(243 244 246 / var(--tw-border-opacity, 1))}.border-gray-200{--tw-border-opacity:1;border-color:rgb(229 231 235 / var(--tw-border-opacity, 1))}.border-gray-200\/50{border-color:rgb(229 231 235 / 0.5)}.border-purple-100{--tw-border-opacity:1;border-color:rgb(243 232 255 / var(--tw-border-opacity, 1))}.border-rose-100{--tw-border-opacity:1;border-color:rgb(255 228 230 / var(--tw-border-opacity, 1))}.border-rose-100\/60{border-color:rgb(255 228 230 / 0.6)}.border-rose-100\/80{border-color:rgb(255 228 230 / 0.8)}.border-rose-200{--tw-border-opacity:1;border-color:rgb(254 205 211 / var(--tw-border-opacity, 1))}.border-rose-200\/80{border-color:rgb(254 205 211 / 0.8)}.border-white\/30{border-color:rgb(255 255 255 / 0.3)}.border-white\/90{border-color:rgb(255 255 255 / 0.9)}.border-amber-100\/80{border-color:rgb(254 243 199 / 0.8)}.border-purple-100\/80{border-color:rgb(243 232 255 / 0.8)}.border-teal-100\/80{border-color:rgb(204 251 241 / 0.8)}.border-t-rose-500{--tw-border-opacity:1;border-top-color:rgb(244 63 94 / var(--tw-border-opacity, 1))}.bg-amber-100{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.bg-amber-200\/30{background-color:rgb(253 230 138 / 0.3)}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235 / var(--tw-bg-opacity, 1))}.bg-amber-500{--tw-bg-opacity:1;background-color:rgb(245 158 11 / var(--tw-bg-opacity, 1))}.bg-black\/40{background-color:rgb(0 0 0 / 0.4)}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1))}.bg-gray-100{--tw-bg-opacity:1;background-color:rgb(243 244 246 / var(--tw-bg-opacity, 1))}.bg-purple-100{--tw-bg-opacity:1;background-color:rgb(243 232 255 / var(--tw-bg-opacity, 1))}.bg-purple-50{--tw-bg-opacity:1;background-color:rgb(250 245 255 / var(--tw-bg-opacity, 1))}.bg-rose-100{--tw-bg-opacity:1;background-color:rgb(255 228 230 / var(--tw-bg-opacity, 1))}.bg-rose-200\/40{background-color:rgb(254 205 211 / 0.4)}.bg-rose-50{--tw-bg-opacity:1;background-color:rgb(255 241 242 / var(--tw-bg-opacity, 1))}.bg-rose-500{--tw-bg-opacity:1;background-color:rgb(244 63 94 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/20{background-color:rgb(255 255 255 / 0.2)}.bg-white\/70{background-color:rgb(255 255 255 / 0.7)}.bg-white\/80{background-color:rgb(255 255 255 / 0.8)}.bg-white\/90{background-color:rgb(255 255 255 / 0.9)}.bg-amber-50\/50{background-color:rgb(255 251 235 / 0.5)}.bg-emerald-500{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-gray-800{--tw-bg-opacity:1;background-color:rgb(31 41 55 / var(--tw-bg-opacity, 1))}.bg-gray-900{--tw-bg-opacity:1;background-color:rgb(17 24 39 / var(--tw-bg-opacity, 1))}.bg-purple-50\/50{background-color:rgb(250 245 255 / 0.5)}.bg-rose-50\/50{background-color:rgb(255 241 242 / 0.5)}.bg-teal-50\/50{background-color:rgb(240 253 250 / 0.5)}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-pink-200{--tw-gradient-from:#fbcfe8 var(--tw-gradient-from-position);--tw-gradient-to:rgb(251 207 232 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-pink-300{--tw-gradient-from:#f9a8d4 var(--tw-gradient-from-position);--tw-gradient-to:rgb(249 168 212 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-rose-100\/70{--tw-gradient-from:rgb(255 228 230 / 0.7) var(--tw-gradient-from-position);--tw-gradient-to:rgb(255 228 230 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-rose-400{--tw-gradient-from:#fb7185 var(--tw-gradient-from-position);--tw-gradient-to:rgb(251 113 133 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-rose-50{--tw-gradient-from:#fff1f2 var(--tw-gradient-from-position);--tw-gradient-to:rgb(255 241 242 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-rose-500{--tw-gradient-from:#f43f5e var(--tw-gradient-from-position);--tw-gradient-to:rgb(244 63 94 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-amber-50{--tw-gradient-to:rgb(255 251 235 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #fffbeb var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-amber-50\/80{--tw-gradient-to:rgb(255 251 235 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), rgb(255 251 235 / 0.8) var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-amber-500{--tw-gradient-to:rgb(245 158 11 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #f59e0b var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-pink-500{--tw-gradient-to:rgb(236 72 153 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #ec4899 var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-rose-100{--tw-gradient-to:rgb(255 228 230 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #ffe4e6 var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-rose-400{--tw-gradient-to:rgb(251 113 133 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #fb7185 var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-rose-500{--tw-gradient-to:rgb(244 63 94 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #f43f5e var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-amber-100{--tw-gradient-to:#fef3c7 var(--tw-gradient-to-position)}.to-amber-400{--tw-gradient-to:#fbbf24 var(--tw-gradient-to-position)}.to-emerald-500{--tw-gradient-to:#10b981 var(--tw-gradient-to-position)}.to-rose-500{--tw-gradient-to:#f43f5e var(--tw-gradient-to-position)}.to-teal-50{--tw-gradient-to:#f0fdfa var(--tw-gradient-to-position)}.to-teal-50\/60{--tw-gradient-to:rgb(240 253 250 / 0.6) var(--tw-gradient-to-position)}.bg-clip-text{-webkit-background-clip:text;background-clip:text}.object-cover{object-fit:cover}.p-0\.5{padding:0.125rem}.p-12{padding:3rem}.p-3{padding:0.75rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.p-3\.5{padding:0.875rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-7{padding-left:1.75rem;padding-right:1.75rem}.px-8{padding-left:2rem;padding-right:2rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.py-3\.5{padding-top:0.875rem;padding-bottom:0.875rem}.pt-2{padding-top:0.5rem}.pt-4{padding-top:1rem}.pt-8{padding-top:2rem}.text-center{text-align:center}.font-cute{font-family:Fredoka, Noto Sans KR, sans-serif}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[11px\]{font-size:11px}.text-\[180px\]{font-size:180px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-\[10px\]{font-size:10px}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.text-amber-500{--tw-text-opacity:1;color:rgb(245 158 11 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-amber-700{--tw-text-opacity:1;color:rgb(180 83 9 / var(--tw-text-opacity, 1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14 / var(--tw-text-opacity, 1))}.text-amber-900{--tw-text-opacity:1;color:rgb(120 53 15 / var(--tw-text-opacity, 1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-purple-600{--tw-text-opacity:1;color:rgb(147 51 234 / var(--tw-text-opacity, 1))}.text-rose-100{--tw-text-opacity:1;color:rgb(255 228 230 / var(--tw-text-opacity, 1))}.text-rose-400{--tw-text-opacity:1;color:rgb(251 113 133 / var(--tw-text-opacity, 1))}.text-rose-500{--tw-text-opacity:1;color:rgb(244 63 94 / var(--tw-text-opacity, 1))}.text-rose-600{--tw-text-opacity:1;color:rgb(225 29 72 / var(--tw-text-opacity, 1))}.text-transparent{color:transparent}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-gray-300{--tw-text-opacity:1;color:rgb(209 213 219 / var(--tw-text-opacity, 1))}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.text-purple-800{--tw-text-opacity:1;color:rgb(107 33 168 / var(--tw-text-opacity, 1))}.text-rose-700{--tw-text-opacity:1;color:rgb(190 18 60 / var(--tw-text-opacity, 1))}.text-teal-800{--tw-text-opacity:1;color:rgb(17 94 89 / var(--tw-text-opacity, 1))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.decoration-amber-200{-webkit-text-decoration-color:#fde68a;text-decoration-color:#fde68a}.underline-offset-4{text-underline-offset:4px}.opacity-20{opacity:0.2}.opacity-0{opacity:0}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-hippo{--tw-shadow:0 8px 20px rgba(255, 182, 193, 0.3);--tw-shadow-colored:0 8px 20px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-soft{--tw-shadow:0 10px 30px -5px rgba(255, 182, 193, 0.15), 0 4px 12px rgba(0, 0, 0, 0.03);--tw-shadow-colored:0 10px 30px -5px var(--tw-shadow-color), 0 4px 12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-rose-200{--tw-shadow-color:#fecdd3;--tw-shadow:var(--tw-shadow-colored)}.blur-2xl{--tw-blur:blur(40px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.blur-xl{--tw-blur:blur(24px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.drop-shadow-md{--tw-drop-shadow:drop-shadow(0 4px 3px rgb(0 0 0 / 0.07)) drop-shadow(0 2px 2px rgb(0 0 0 / 0.06));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.drop-shadow-sm{--tw-drop-shadow:drop-shadow(0 1px 1px rgb(0 0 0 / 0.05));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-200{transition-duration:200ms}.duration-300{transition-duration:300ms}.selection\:bg-pink-200 *::selection{--tw-bg-opacity:1;background-color:rgb(251 207 232 / var(--tw-bg-opacity, 1))}.selection\:text-pink-800 *::selection{--tw-text-opacity:1;color:rgb(157 23 77 / var(--tw-text-opacity, 1))}.selection\:bg-pink-200::selection{--tw-bg-opacity:1;background-color:rgb(251 207 232 / var(--tw-bg-opacity, 1))}.selection\:text-pink-800::selection{--tw-text-opacity:1;color:rgb(157 23 77 / var(--tw-text-opacity, 1))}.hover\:-translate-y-0\.5:hover{--tw-translate-y:-0.125rem;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:bg-amber-100:hover{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.hover\:bg-gray-50:hover{--tw-bg-opacity:1;background-color:rgb(249 250 251 / var(--tw-bg-opacity, 1))}.hover\:bg-rose-100:hover{--tw-bg-opacity:1;background-color:rgb(255 228 230 / var(--tw-bg-opacity, 1))}.hover\:bg-rose-50:hover{--tw-bg-opacity:1;background-color:rgb(255 241 242 / var(--tw-bg-opacity, 1))}.hover\:bg-rose-600:hover{--tw-bg-opacity:1;background-color:rgb(225 29 72 / var(--tw-bg-opacity, 1))}.hover\:bg-gray-900:hover{--tw-bg-opacity:1;background-color:rgb(17 24 39 / var(--tw-bg-opacity, 1))}.hover\:from-rose-500:hover{--tw-gradient-from:#f43f5e var(--tw-gradient-from-position);--tw-gradient-to:rgb(244 63 94 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-rose-600:hover{--tw-gradient-to:#e11d48 var(--tw-gradient-to-position)}.hover\:text-rose-500:hover{--tw-text-opacity:1;color:rgb(244 63 94 / var(--tw-text-opacity, 1))}.hover\:text-rose-600:hover{--tw-text-opacity:1;color:rgb(225 29 72 / var(--tw-text-opacity, 1))}.hover\:shadow-card-hover:hover{--tw-shadow:0 20px 35px -10px rgba(255, 158, 187, 0.25);--tw-shadow-colored:0 20px 35px -10px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.hover\:shadow-rose-300:hover{--tw-shadow-color:#fda4af;--tw-shadow:var(--tw-shadow-colored)}.active\:translate-y-0:active{--tw-translate-y:0px;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.disabled\:pointer-events-none:disabled{pointer-events:none}.disabled\:opacity-30:disabled{opacity:0.3}.group:hover .group-hover\:scale-105{--tw-scale-x:1.05;--tw-scale-y:1.05;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:text-rose-500{--tw-text-opacity:1;color:rgb(244 63 94 / var(--tw-text-opacity, 1))}@media (min-width: 640px){.sm\:inline-block{display:inline-block}.sm\:inline{display:inline}.sm\:h-11{height:2.75rem}.sm\:h-20{height:5rem}.sm\:h-24{height:6rem}.sm\:h-52{height:13rem}.sm\:h-64{height:16rem}.sm\:w-11{width:2.75rem}.sm\:w-20{width:5rem}.sm\:w-24{width:6rem}.sm\:w-52{width:13rem}.sm\:w-64{width:16rem}.sm\:w-auto{width:auto}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:space-x-4 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(1rem * var(--tw-space-x-reverse));margin-left:calc(1rem * calc(1 - var(--tw-space-x-reverse)))}.sm\:p-10{padding:2.5rem}.sm\:p-12{padding:3rem}.sm\:p-4{padding:1rem}.sm\:p-5{padding:1.25rem}.sm\:p-8{padding:2rem}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:py-10{padding-top:2.5rem;padding-bottom:2.5rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-4xl{font-size:2.25rem;line-height:2.5rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}}@media (min-width: 768px){.md\:col-span-5{grid-column:span 5 / span 5}.md\:col-span-7{grid-column:span 7 / span 7}.md\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:justify-start{justify-content:flex-start}.md\:text-left{text-align:left}.md\:text-5xl{font-size:3rem;line-height:1}}@media (min-width: 1024px){.lg\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.lg\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}}</style></head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-pink-200 selection:text-pink-800">
 
-    <div id="game-container">
-        <!-- HUD -->
-        <div id="hud" class="hidden">
-            <div class="hud-item" id="stage-display">STAGE: 1</div>
-            <div class="hud-item" id="score-display">SCORE: 0</div>
-            <div class="hud-item" id="status-display">상태: 이동 가능</div>
-        </div>
-
-        <!-- Start Screen -->
-        <div id="start-screen" class="overlay">
-            <h1>🏫 학원 땡땡이 대작전</h1>
-            <p>오늘따라 너무 가기 싫은 학원...<br>선생님의 눈을 피하고 장애물을 넘어 PC방으로 탈출하자!</p>
-            <div class="instructions">
-                <p style="font-size:16px; margin:0;">
-                    🎮 <strong>조작법</strong><br>
-                    1단계: Direction Keys(이동), Space(숨기)<br>
-                    2단계: Left/Right Key(좌우 피하기)<br>
-                    3단계: 마우스로 핑계 선택
-                </p>
+    <!-- TOP ONE-CLICK CODE COPY BAR -->
+    <div class="bg-gradient-to-r from-rose-500 via-pink-500 to-amber-400 text-white py-2.5 px-4 text-center shadow-md relative z-50">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div class="flex items-center space-x-2 text-xs sm:text-sm font-semibold">
+                <span class="bg-white/20 backdrop-blur-md px-2 py-0.5 rounded text-[11px]">꿀팁</span>
+                <span>이 웹페이지 전체 소스 코드를 내 파일로 가져가고 싶나요?</span>
             </div>
-            <div class="btn-group">
-                <button class="btn" onclick="startGame(1)">처음부터 시작</button>
-                <button class="btn btn-sub hidden" id="continue-btn" onclick="continueGame()">이어서 하기 (STAGE <span id="saved-stage-num">1</span>)</button>
-            </div>
+            <button onclick="copyFullSourceCode()" class="bg-white text-rose-600 hover:bg-rose-50 active:scale-95 font-bold text-xs sm:text-sm px-4 py-1.5 rounded-full shadow-md transition-all flex items-center space-x-2">
+                <i class="fa-regular fa-copy"></i>
+                <span>📋 전체 HTML 코드 한 번에 복사하기</span>
+            </button>
         </div>
+    </div>
 
-        <!-- Stage Intro Screen -->
-        <div id="stage-intro" class="overlay hidden">
-            <h1 id="intro-title">STAGE 1</h1>
-            <p id="intro-desc">설명</p>
-            <button class="btn" onclick="startCurrentStage()">시작</button>
-        </div>
-
-        <!-- Stage 3 QTE Screen (HTML Overlay) -->
-        <div id="stage3-screen" class="overlay hidden">
-            <h1 style="font-size: 28px; color: #f1c40f;">🚨 선생님에게 빌미를 잡혔다!</h1>
-            <p id="qte-question" style="font-size: 22px; margin-top: 10px;">"너 지금 어디 가니?"</p>
-            <div id="timer-bar-container">
-                <div id="timer-bar"></div>
+    <!-- HEADER NAVBAR -->
+    <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-rose-100 shadow-sm transition-all duration-300">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div onclick="navTo('home')" class="flex items-center space-x-3 cursor-pointer group">
+                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-pink-200 via-rose-100 to-amber-100 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-300">
+                    <svg class="w-7 h-7 text-rose-500" viewBox="0 0 100 100">
+                        <ellipse cx="50" cy="55" rx="30" ry="25" fill="#FFEAEF"></ellipse>
+                        <circle cx="38" cy="45" r="4" fill="#333"></circle>
+                        <circle cx="62" cy="45" r="4" fill="#333"></circle>
+                        <ellipse cx="42" cy="62" rx="3" ry="2" fill="#FF8A65"></ellipse>
+                        <ellipse cx="58" cy="62" rx="3" ry="2" fill="#FF8A65"></ellipse>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xl sm:text-2xl font-bold font-cute tracking-tight text-gray-800 group-hover:text-rose-500 transition-colors">길잡이</span>
+                    <span class="hidden sm:inline-block text-xs text-rose-400 font-medium ml-2 px-2 py-0.5 rounded-full bg-rose-50 border border-rose-100">청소년 진로 탐색</span>
+                </div>
             </div>
-            <div id="stage3-ui">
-                <div class="qte-btn-group" id="qte-options">
-                    <!-- Dynamic Buttons -->
+
+            <!-- Header Menu / Actions -->
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <button onclick="restartTestPrompt()" id="navResetBtn" class="text-xs sm:text-sm font-medium text-gray-500 hover:text-rose-500 px-3 py-1.5 rounded-xl hover:bg-rose-50 transition-all">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> 처음부터
+                </button>
+                <div class="flex items-center text-xs text-amber-700 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200">
+                    <i class="fa-solid fa-seedling text-amber-500 mr-1.5"></i>
+                    <span id="headerStatusMsg">진로 진단 진행 중</span>
                 </div>
             </div>
         </div>
+    </header>
 
-        <!-- Game Over Screen -->
-        <div id="game-over-screen" class="overlay hidden">
-            <h1 style="color: #e74c3c;">❌ 들켰다!</h1>
-            <p id="fail-reason">선생님에게 잡혀서 강제로 보강 수업에 들어갔습니다...</p>
-            <div class="btn-group">
-                <button class="btn" onclick="restartStage()">현재 단계 재시도 🔄</button>
-                <button class="btn btn-sub" onclick="initGame()">처음 화면으로</button>
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-5xl w-full mx-auto px-4 py-6 sm:py-10">
+
+        <!-- 1. HOME SECTION -->
+        <section id="homeSection" class="fade-in space-y-10 hidden">
+            <!-- Hero Banner Card -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-100/70 via-amber-50/80 to-teal-50/60 border border-rose-100/80 p-6 sm:p-12 shadow-soft">
+                <div class="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-rose-200/40 blur-2xl pointer-events-none"></div>
+                <div class="absolute bottom-0 right-1/4 w-36 h-36 rounded-full bg-amber-200/30 blur-xl pointer-events-none"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
+                    <div class="md:col-span-7 space-y-5 text-center md:text-left">
+                        <div class="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-rose-200 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium text-rose-600 shadow-sm">
+                            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                            <span>맞춤형 학업 &amp; 적성 진단 시스템</span>
+                        </div>
+
+                        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight">
+                            내 마음과 성적에 딱 맞는<br>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-amber-500 to-emerald-500">꿈의 길잡이</span>를 만나요!
+                        </h1>
+
+                        <p class="text-gray-600 text-sm sm:text-base leading-relaxed max-w-xl">
+                            "어떤 직업이 나랑 맞을까?" 고민 많았죠?<br class="hidden sm:inline">
+                            최근 성적 분석부터 내 공부 습관, 흥미, 가치관까지 통합 분석하여 가장 빛나는 나의 진로를 따뜻하게 안내해 줄게요.
+                        </p>
+
+                        <div class="pt-2 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+                            <button onclick="startTest()" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-rose-400 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-lg shadow-lg shadow-rose-200 hover:shadow-rose-300 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center space-x-3">
+                                <span>진로 검사 시작하기</span>
+                                <i class="fa-solid fa-arrow-right text-sm"></i>
+                            </button>
+                            <a href="#aboutSection" class="text-xs sm:text-sm text-gray-500 hover:text-rose-500 font-medium underline underline-offset-4">
+                                검사가 어떻게 구성되나요?
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Mascot Big Banner -->
+                    <div class="md:col-span-5 flex flex-col items-center justify-center">
+                        <div class="relative w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center">
+                            <div class="absolute inset-0 rounded-full bg-white/70 shadow-hippo border-4 border-white/90"></div>
+                            <div class="hippo-float z-10 w-44 h-44 sm:w-52 sm:h-52">
+                                <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-md">
+                                    <g class="ear-left">
+                                        <ellipse cx="60" cy="60" rx="14" ry="18" fill="#FFF5F7" stroke="#FDBA74" stroke-width="2"></ellipse>
+                                        <ellipse cx="60" cy="60" rx="8" ry="12" fill="#FFC0CB"></ellipse>
+                                    </g>
+                                    <g class="ear-right">
+                                        <ellipse cx="140" cy="60" rx="14" ry="18" fill="#FFF5F7" stroke="#FDBA74" stroke-width="2"></ellipse>
+                                        <ellipse cx="140" cy="60" rx="8" ry="12" fill="#FFC0CB"></ellipse>
+                                    </g>
+                                    <ellipse cx="100" cy="95" rx="55" ry="48" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"></ellipse>
+                                    <ellipse cx="62" cy="100" rx="10" ry="6" fill="#FFB6C1" opacity="0.6"></ellipse>
+                                    <ellipse cx="138" cy="100" rx="10" ry="6" fill="#FFB6C1" opacity="0.6"></ellipse>
+                                    <circle cx="75" cy="85" r="5" fill="#2D3748"></circle>
+                                    <circle cx="77" cy="83" r="1.8" fill="#FFFFFF"></circle>
+                                    <circle cx="125" cy="85" r="5" fill="#2D3748"></circle>
+                                    <circle cx="127" cy="83" r="1.8" fill="#FFFFFF"></circle>
+                                    <ellipse cx="100" cy="122" rx="42" ry="28" fill="#FFF0F5" stroke="#FBCFE8" stroke-width="2"></ellipse>
+                                    <ellipse cx="88" cy="118" rx="4" ry="6" fill="#FF8A65"></ellipse>
+                                    <ellipse cx="112" cy="118" rx="4" ry="6" fill="#FF8A65"></ellipse>
+                                    <path d="M 92 132 Q 100 138 108 132" fill="none" stroke="#E53E3E" stroke-width="2.5" stroke-linecap="round"></path>
+                                    <path d="M 100 42 L 105 52 L 115 50 L 108 58 L 112 68 L 100 62 L 88 68 L 92 58 L 85 50 L 95 52 Z" fill="#FCD34D"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="mt-2 bg-white/90 border border-amber-200 shadow-sm px-4 py-2 rounded-2xl text-center">
+                            <p class="text-xs font-bold text-amber-800">안녕! 나는 너의 가이드 하마 <span class="text-rose-500 font-cute text-sm">‘하미’</span>야!</p>
+                            <p class="text-[11px] text-gray-500">검사하는 동안 계속 같이 있어줄게 🦛✨</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div id="aboutSection" class="space-y-6 pt-4">
+                <div class="text-center space-y-2">
+                    <h2 class="text-2xl font-bold text-gray-800">길잡이 검사는 어떻게 진행되나요?</h2>
+                    <p class="text-sm text-gray-500">부담 없이 편안하게 문항을 읽고 떠오르는 답을 선택해주세요.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div class="bg-white p-6 rounded-2xl border border-rose-100 shadow-soft hover:shadow-card-hover transition-all duration-300 flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-500 flex items-center justify-center text-xl font-bold">01</div>
+                            <h3 class="font-bold text-gray-800 text-base">학업 &amp; 성적 성향</h3>
+                            <p class="text-xs text-gray-500 leading-relaxed">최근 학기 과목별 성적과 내가 선호하는 과목 특성을 파악합니다.</p>
+                        </div>
+                        <span class="mt-4 text-[11px] font-semibold text-rose-400 bg-rose-50 px-2.5 py-1 rounded-lg w-max">5 문항</span>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-amber-100 shadow-soft hover:shadow-card-hover transition-all duration-300 flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl font-bold">02</div>
+                            <h3 class="font-bold text-gray-800 text-base">공부 성격 &amp; 스타일</h3>
+                            <p class="text-xs text-gray-500 leading-relaxed">나만의 공부 방식, 문제 해결 스타일, 몰입도를 진단합니다.</p>
+                        </div>
+                        <span class="mt-4 text-[11px] font-semibold text-amber-500 bg-amber-50 px-2.5 py-1 rounded-lg w-max">7 문항</span>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-emerald-100 shadow-soft hover:shadow-card-hover transition-all duration-300 flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl font-bold">03</div>
+                            <h3 class="font-bold text-gray-800 text-base">직업 흥미 &amp; 가치관</h3>
+                            <p class="text-xs text-gray-500 leading-relaxed">수리/창의/사람/데이터 분야 흥미와 주요 우선순위를 찾습니다.</p>
+                        </div>
+                        <span class="mt-4 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg w-max">18 문항</span>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-purple-100 shadow-soft hover:shadow-card-hover transition-all duration-300 flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl font-bold">04</div>
+                            <h3 class="font-bold text-gray-800 text-base">직업 적성 &amp; 성격</h3>
+                            <p class="text-xs text-gray-500 leading-relaxed">논리력, 공감력, 리더십 등 타고난 적성 강점을 분석합니다.</p>
+                        </div>
+                        <span class="mt-4 text-[11px] font-semibold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-lg w-max">12 문항</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. TEST SECTION -->
+        <section id="testSection" class="fade-in space-y-6">
+            <div class="bg-gradient-to-r from-rose-50 via-amber-50 to-teal-50 border border-rose-200/80 rounded-3xl p-4 sm:p-5 shadow-sm flex items-center space-x-4 relative overflow-hidden">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 relative">
+                    <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-sm hippo-float">
+                        <ellipse cx="60" cy="60" rx="14" ry="18" fill="#FFF5F7" stroke="#FDBA74" stroke-width="2"></ellipse>
+                        <ellipse cx="140" cy="60" rx="14" ry="18" fill="#FFF5F7" stroke="#FDBA74" stroke-width="2"></ellipse>
+                        <ellipse cx="100" cy="95" rx="55" ry="48" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"></ellipse>
+                        <ellipse cx="62" cy="100" rx="10" ry="6" fill="#FFB6C1" opacity="0.6"></ellipse>
+                        <ellipse cx="138" cy="100" rx="10" ry="6" fill="#FFB6C1" opacity="0.6"></ellipse>
+                        <circle cx="75" cy="85" r="5" fill="#2D3748"></circle>
+                        <circle cx="125" cy="85" r="5" fill="#2D3748"></circle>
+                        <ellipse cx="100" cy="122" rx="42" ry="28" fill="#FFF0F5" stroke="#FBCFE8" stroke-width="2"></ellipse>
+                        <ellipse cx="88" cy="118" rx="4" ry="6" fill="#FF8A65"></ellipse>
+                        <ellipse cx="112" cy="118" rx="4" ry="6" fill="#FF8A65"></ellipse>
+                        <path d="M 92 132 Q 100 138 108 132" fill="none" stroke="#E53E3E" stroke-width="2.5" stroke-linecap="round"></path>
+                    </svg>
+                </div>
+
+                <div class="flex-grow bg-white border border-rose-200 rounded-2xl p-3 sm:p-4 shadow-sm relative">
+                    <div class="absolute -left-2 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-b border-l border-rose-200 transform rotate-45"></div>
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs font-bold text-rose-500 font-cute">하미의 응원 메시지 🦛</span>
+                        <span id="stepBadge" class="text-[11px] font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">Step 1/5</span>
+                    </div>
+                    <p id="hippoSpeech" class="text-xs sm:text-sm font-medium text-gray-700 leading-snug">"먼저 너의 최근 학교 성적 성향을 솔직하게 알려줘!"</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm space-y-2">
+                <div class="flex justify-between items-center text-xs font-semibold text-gray-600">
+                    <span id="currentCategoryTitle">1단계: 학업 성향</span>
+                    <span id="progressText" class="text-rose-500 font-bold">1 / 42 (2%)</span>
+                </div>
+                <div class="w-full bg-gray-100 h-3 rounded-full overflow-hidden p-0.5 border border-gray-200/50">
+                    <div id="progressBar" class="bg-gradient-to-r from-pink-300 via-rose-400 to-amber-400 h-full rounded-full transition-all duration-300 w-0" style="width: 2%;"></div>
+                </div>
+            </div>
+
+            <div id="questionCard" class="bg-white rounded-3xl p-6 sm:p-10 border border-rose-100/60 shadow-soft min-h-[380px] flex flex-col justify-between">
+                <div id="questionBody" class="space-y-6">
+                <div class="space-y-2">
+                    <div class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-600">
+                        Q1. 학업 성향
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-extrabold text-gray-800 leading-snug">
+                        최근 학기 주과목별 스스로 느끼는 성적/이해도 수준은 어떤가요?
+                    </h3>
+                    <p class="text-xs text-gray-500">각 과목의 슬라이더를 편하게 움직여주세요. (1점: 어려움 ~ 5점: 매우 우수)</p>
+                </div>
+            <div class="space-y-4 pt-2">
+                        <div class="bg-amber-50/50 p-3.5 rounded-2xl border border-amber-100 space-y-2">
+                            <div class="flex justify-between items-center text-xs font-bold text-gray-700">
+                                <span>국어 / 문학</span>
+                                <span id="val_disp_korean" class="text-rose-500 font-extrabold text-sm">3점</span>
+                            </div>
+                            <input type="range" min="1" max="5" value="3" class="w-full" oninput="updateSliderVal(1, 'korean', this.value)">
+                            <div class="flex justify-between text-[10px] text-gray-400">
+                                <span>1점(어려움)</span>
+                                <span>3점(보통)</span>
+                                <span>5점(매우잘함)</span>
+                            </div>
+                        </div>
+                    
+                        <div class="bg-amber-50/50 p-3.5 rounded-2xl border border-amber-100 space-y-2">
+                            <div class="flex justify-between items-center text-xs font-bold text-gray-700">
+                                <span>수학 / 논리</span>
+                                <span id="val_disp_math" class="text-rose-500 font-extrabold text-sm">3점</span>
+                            </div>
+                            <input type="range" min="1" max="5" value="3" class="w-full" oninput="updateSliderVal(1, 'math', this.value)">
+                            <div class="flex justify-between text-[10px] text-gray-400">
+                                <span>1점(어려움)</span>
+                                <span>3점(보통)</span>
+                                <span>5점(매우잘함)</span>
+                            </div>
+                        </div>
+                    
+                        <div class="bg-amber-50/50 p-3.5 rounded-2xl border border-amber-100 space-y-2">
+                            <div class="flex justify-between items-center text-xs font-bold text-gray-700">
+                                <span>영어 / 외국어</span>
+                                <span id="val_disp_english" class="text-rose-500 font-extrabold text-sm">3점</span>
+                            </div>
+                            <input type="range" min="1" max="5" value="3" class="w-full" oninput="updateSliderVal(1, 'english', this.value)">
+                            <div class="flex justify-between text-[10px] text-gray-400">
+                                <span>1점(어려움)</span>
+                                <span>3점(보통)</span>
+                                <span>5점(매우잘함)</span>
+                            </div>
+                        </div>
+                    
+                        <div class="bg-amber-50/50 p-3.5 rounded-2xl border border-amber-100 space-y-2">
+                            <div class="flex justify-between items-center text-xs font-bold text-gray-700">
+                                <span>과학 / 탐구</span>
+                                <span id="val_disp_science" class="text-rose-500 font-extrabold text-sm">3점</span>
+                            </div>
+                            <input type="range" min="1" max="5" value="3" class="w-full" oninput="updateSliderVal(1, 'science', this.value)">
+                            <div class="flex justify-between text-[10px] text-gray-400">
+                                <span>1점(어려움)</span>
+                                <span>3점(보통)</span>
+                                <span>5점(매우잘함)</span>
+                            </div>
+                        </div>
+                    
+                        <div class="bg-amber-50/50 p-3.5 rounded-2xl border border-amber-100 space-y-2">
+                            <div class="flex justify-between items-center text-xs font-bold text-gray-700">
+                                <span>사회 / 역사</span>
+                                <span id="val_disp_social" class="text-rose-500 font-extrabold text-sm">3점</span>
+                            </div>
+                            <input type="range" min="1" max="5" value="3" class="w-full" oninput="updateSliderVal(1, 'social', this.value)">
+                            <div class="flex justify-between text-[10px] text-gray-400">
+                                <span>1점(어려움)</span>
+                                <span>3점(보통)</span>
+                                <span>5점(매우잘함)</span>
+                            </div>
+                        </div>
+                    </div></div>
+
+                <div class="pt-8 border-t border-gray-100 flex justify-between items-center">
+                    <button id="prevBtn" onclick="prevQuestion()" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-500 font-medium text-sm hover:bg-gray-50 transition-all disabled:opacity-30 disabled:pointer-events-none flex items-center space-x-2" disabled="">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                        <span>이전 문항</span>
+                    </button>
+
+                    <button id="nextBtn" onclick="nextQuestion()" class="px-7 py-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-sm shadow-md shadow-rose-200 transition-all flex items-center space-x-2">
+                        <span id="nextBtnText">다음 문항</span>
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. RESULT SECTION -->
+        <section id="resultSection" class="hidden fade-in space-y-8">
+            <div id="resultLoading" class="bg-white rounded-3xl p-12 text-center shadow-soft border border-rose-100 space-y-6">
+                <div class="relative w-28 h-28 mx-auto flex items-center justify-center">
+                    <div class="absolute inset-0 rounded-full border-4 border-rose-100 border-t-rose-500 animate-spin"></div>
+                    <div class="w-20 h-20 hippo-float">
+                        <svg viewBox="0 0 200 200" class="w-full h-full">
+                            <ellipse cx="60" cy="60" rx="14" ry="18" fill="#FFF5F7" stroke="#FDBA74" stroke-width="2"></ellipse>
+                            <ellipse cx="140" cy="60" rx="14" ry="18" fill="#FFF5F7" stroke="#FDBA74" stroke-width="2"></ellipse>
+                            <ellipse cx="100" cy="95" rx="55" ry="48" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"></ellipse>
+                            <circle cx="75" cy="85" r="5" fill="#2D3748"></circle>
+                            <circle cx="125" cy="85" r="5" fill="#2D3748"></circle>
+                            <ellipse cx="100" cy="122" rx="42" ry="28" fill="#FFF0F5"></ellipse>
+                            <ellipse cx="88" cy="118" rx="4" ry="6" fill="#FF8A65"></ellipse>
+                            <ellipse cx="112" cy="118" rx="4" ry="6" fill="#FF8A65"></ellipse>
+                        </svg>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-xl font-bold text-gray-800">하미가 학생의 답변을 정밀 분석하고 있어요!</h3>
+                    <p class="text-sm text-gray-500">성적, 학습 습관, 적성, 흥미 데이터를 종합 계산 중입니다...</p>
+                </div>
+            </div>
+
+            <div id="resultDashboard" class="hidden space-y-8">
+                <div class="bg-gradient-to-br from-rose-400 via-rose-500 to-amber-400 rounded-3xl p-6 sm:p-10 text-white shadow-lg relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 opacity-20 w-64 h-64">
+                        <i class="fa-solid fa-compass text-white text-[180px]"></i>
+                    </div>
+
+                    <div class="relative z-10 max-w-2xl space-y-3">
+                        <span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider text-white border border-white/30">
+                            맞춤 진로 진단 리포트
+                        </span>
+                        <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">
+                            분석 완료! 나만을 위한 <br><span class="underline decoration-amber-200 underline-offset-4">맞춤형 진로 길잡이</span>
+                        </h2>
+                        <p class="text-rose-100 text-xs sm:text-sm leading-relaxed">
+                            학생이 응답한 성적 성향, 공부 스타일에 적합한 카테고리와 가장 어울리는 직업 TOP 5를 선정했습니다.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+                        <h3 class="text-xl font-bold text-gray-800">추천 진로 분야 TOP 2</h3>
+                    </div>
+
+                    <div id="recommendedFieldsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+                </div>
+
+                <div class="space-y-5 pt-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                            <h3 class="text-xl font-bold text-gray-800">나에게 꼭 맞는 직업 TOP 5</h3>
+                        </div>
+                        <span class="text-xs text-gray-500">카드 클릭 시 상세 정보 열람</span>
+                    </div>
+
+                    <div id="topJobsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                </div>
+
+                <div class="bg-amber-50 rounded-3xl p-6 border border-amber-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-14 h-14 flex-shrink-0">
+                            <svg viewBox="0 0 200 200" class="w-full h-full">
+                                <ellipse cx="100" cy="95" rx="55" ry="48" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"></ellipse>
+                                <circle cx="75" cy="85" r="5" fill="#2D3748"></circle>
+                                <circle cx="125" cy="85" r="5" fill="#2D3748"></circle>
+                                <ellipse cx="100" cy="122" rx="42" ry="28" fill="#FFF0F5"></ellipse>
+                                <ellipse cx="88" cy="118" rx="4" ry="6" fill="#FF8A65"></ellipse>
+                                <ellipse cx="112" cy="118" rx="4" ry="6" fill="#FF8A65"></ellipse>
+                                <path d="M 92 132 Q 100 138 108 132" fill="none" stroke="#E53E3E" stroke-width="2.5" stroke-linecap="round"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-amber-900 text-sm sm:text-base">하미의 마지막 응원 한마디!</h4>
+                            <p class="text-xs text-amber-800 mt-0.5">"너는 무한한 가능성을 지닌 멋진 사람이야. 관심 있는 분야부터 차근차근 배워보자!"</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
+                        <button onclick="window.print()" class="px-4 py-2.5 rounded-xl bg-white border border-amber-300 text-amber-800 text-xs font-bold hover:bg-amber-100 transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-print"></i>
+                            <span>결과 프린트</span>
+                        </button>
+                        <button onclick="startTest()" class="px-5 py-2.5 rounded-xl bg-rose-500 text-white text-xs font-bold hover:bg-rose-600 transition-all shadow-md shadow-rose-200">
+                            다시 검사하기
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JOB DETAIL MODAL CONTAINER -->
+    <div id="jobDetailModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center p-4 transition-all">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-rose-100 p-6 sm:p-8 space-y-6 fade-in relative">
+            <button onclick="closeModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-gray-100 hover:bg-rose-100 text-gray-500 hover:text-rose-600 flex items-center justify-center transition-all">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div class="flex items-center space-x-4">
+                <img id="modalJobImg" src="" alt="직업 이미지" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover shadow-sm border border-gray-100">
+                <div class="space-y-1">
+                    <span id="modalJobCategory" class="text-xs font-bold text-rose-500 bg-rose-50 px-2.5 py-1 rounded-md">분야</span>
+                    <h3 id="modalJobTitle" class="text-2xl font-extrabold text-gray-800">직업 이름</h3>
+                    <p id="modalJobSummary" class="text-xs text-gray-500">한줄 직업 요약</p>
+                </div>
+            </div>
+
+            <div class="space-y-5 text-sm">
+                <div class="bg-rose-50/50 rounded-2xl p-4 border border-rose-100/80 space-y-1.5">
+                    <h4 class="font-bold text-rose-700 text-xs sm:text-sm flex items-center">
+                        <i class="fa-solid fa-briefcase mr-2"></i> 어떤 일을 하는 직업인가요?
+                    </h4>
+                    <p id="modalJobTasks" class="text-gray-700 leading-relaxed text-xs sm:text-sm"></p>
+                </div>
+
+                <div class="bg-amber-50/50 rounded-2xl p-4 border border-amber-100/80 space-y-1.5">
+                    <h4 class="font-bold text-amber-800 text-xs sm:text-sm flex items-center">
+                        <i class="fa-solid fa-heart mr-2"></i> 어울리는 성격 &amp; 가치관
+                    </h4>
+                    <p id="modalJobTraits" class="text-gray-700 leading-relaxed text-xs sm:text-sm"></p>
+                </div>
+
+                <div class="bg-teal-50/50 rounded-2xl p-4 border border-teal-100/80 space-y-1.5">
+                    <h4 class="font-bold text-teal-800 text-xs sm:text-sm flex items-center">
+                        <i class="fa-solid fa-graduation-cap mr-2"></i> 관련 학과 &amp; 필요 역량
+                    </h4>
+                    <p id="modalJobMajors" class="text-gray-700 leading-relaxed text-xs sm:text-sm"></p>
+                </div>
+
+                <div class="bg-purple-50/50 rounded-2xl p-4 border border-purple-100/80 space-y-1.5">
+                    <h4 class="font-bold text-purple-800 text-xs sm:text-sm flex items-center">
+                        <i class="fa-solid fa-chart-line mr-2"></i> 미래 전망 &amp; 연봉 수준
+                    </h4>
+                    <p id="modalJobOutlook" class="text-gray-700 leading-relaxed text-xs sm:text-sm"></p>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button onclick="closeModal()" class="w-full py-3 rounded-2xl bg-gray-800 hover:bg-gray-900 text-white font-bold text-sm transition-all shadow-md">
+                    확인완료 &amp; 닫기
+                </button>
             </div>
         </div>
-
-        <!-- Game Clear Screen -->
-        <div id="game-clear-screen" class="overlay hidden">
-            <h1 style="color: #2ecc71;">🎉 탈출 성공!</h1>
-            <p>축하합니다! 무사히 학원을 빠져나왔습니다.</p>
-            <p id="final-score" style="color: #f1c40f; font-size: 28px;">최종 점수: 0</p>
-            <p id="achievement" style="font-size: 24px; color: #e94560; margin-top: 10px;"></p>
-            <button class="btn" onclick="resetSaveAndInit()">처음으로</button>
-        </div>
-
-        <!-- Main Canvas -->
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
     </div>
 
+    <!-- COPY ALERT TOAST POPUP -->
+    <div id="copyToast" class="fixed bottom-6 right-6 z-50 bg-gray-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center space-x-3 transition-all duration-300 opacity-0 pointer-events-none transform translate-y-4">
+        <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <div>
+            <p class="text-xs font-bold">전체 소스 코드가 클립보드에 복사되었습니다!</p>
+            <p class="text-[11px] text-gray-300">메모장이나 파일 편집기에 Ctrl + V 하세요.</p>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-gray-100 py-6 mt-12">
+        <div class="max-w-6xl mx-auto px-4 text-center space-y-2">
+            <p class="text-xs text-gray-400">
+                © 2026 길잡이 (Giljabi) - 학생들을 위한 감성 진로 탐색 플랫폼. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
     <script>
-        // --- Sound Synthesizer (Web Audio API) ---
-        class SoundFX {
-            constructor() {
-                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-
-            playBeep(freq = 440, type = 'sine', duration = 0.1) {
-                if (this.ctx.state === 'suspended') this.ctx.resume();
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + duration);
-            }
-
-            playSuccess() {
-                this.playBeep(523.25, 'triangle', 0.1);
-                setTimeout(() => this.playBeep(659.25, 'triangle', 0.1), 100);
-                setTimeout(() => this.playBeep(783.99, 'triangle', 0.2), 200);
-            }
-
-            playFail() {
-                this.playBeep(300, 'sawtooth', 0.15);
-                setTimeout(() => this.playBeep(200, 'sawtooth', 0.3), 150);
-            }
-
-            playStep() {
-                this.playBeep(150, 'sine', 0.05);
-            }
-        }
-
-        const sound = new SoundFX();
-
-        // --- Game Framework ---
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-
-        let currentStage = 1;
-        let score = 0;
-        let stageStartScore = 0; // 해당 단계 시작 시점의 점수 (재시도용)
-        let gameLoopId = null;
-        let keys = {};
-
-        // Inputs
-        window.addEventListener('keydown', e => keys[e.code] = true);
-        window.addEventListener('keyup', e => keys[e.code] = false);
-
-        // --- Save System (localStorage) ---
-        function saveProgress(stage, currentScore) {
-            localStorage.setItem('academy_escape_stage', stage);
-            localStorage.setItem('academy_escape_score', currentScore);
-        }
-
-        function loadSaveData() {
-            const savedStage = localStorage.getItem('academy_escape_stage');
-            const savedScore = localStorage.getItem('academy_escape_score');
-            if (savedStage && parseInt(savedStage) > 1) {
-                document.getElementById('continue-btn').classList.remove('hidden');
-                document.getElementById('saved-stage-num').innerText = savedStage;
-                return { stage: parseInt(savedStage), score: parseInt(savedScore) || 0 };
-            }
-            return null;
-        }
-
-        function resetSaveAndInit() {
-            localStorage.removeItem('academy_escape_stage');
-            localStorage.removeItem('academy_escape_score');
-            document.getElementById('continue-btn').classList.add('hidden');
-            initGame();
-        }
-
-        function updateHUD() {
-            document.getElementById('stage-display').innerText = `STAGE: ${currentStage}`;
-            document.getElementById('score-display').innerText = `SCORE: ${score}`;
-        }
-
-        function showScreen(id) {
-            document.querySelectorAll('.overlay').forEach(el => el.classList.add('hidden'));
-            if (id) document.getElementById(id).classList.remove('hidden');
-        }
-
-        function initGame() {
-            currentStage = 1;
-            score = 0;
-            stageStartScore = 0;
-            showScreen('start-screen');
-            document.getElementById('hud').classList.add('hidden');
-            loadSaveData();
-        }
-
-        function startGame(stage = 1, initialScore = 0) {
-            currentStage = stage;
-            score = initialScore;
-            stageStartScore = initialScore;
-            document.getElementById('hud').classList.remove('hidden');
-            setupStageIntro(currentStage);
-        }
-
-        function continueGame() {
-            const data = loadSaveData();
-            if (data) {
-                startGame(data.stage, data.score);
+        // Copy Code helper function
+        function copyFullSourceCode() {
+            const htmlContent = document.documentElement.outerHTML;
+            
+            // Try clipboard API first with execCommand fallback
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(htmlContent).then(showToast).catch(fallbackCopy);
             } else {
-                startGame(1, 0);
+                fallbackCopy();
+            }
+
+            function fallbackCopy() {
+                const textarea = document.createElement("textarea");
+                textarea.value = htmlContent;
+                textarea.style.position = "fixed";
+                textarea.style.opacity = "0";
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast();
+                } catch (err) {
+                    alert("복사에 실패했습니다. Ctrl+A 후 Ctrl+C를 눌러 직접 복사해주세요.");
+                }
+                document.body.removeChild(textarea);
+            }
+
+            function showToast() {
+                const toast = document.getElementById('copyToast');
+                toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+                }, 3000);
             }
         }
 
-        function setupStageIntro(stageNum) {
-            currentStage = stageNum;
-            updateHUD();
-            const intro = document.getElementById('stage-intro');
-            const title = document.getElementById('intro-title');
-            const desc = document.getElementById('intro-desc');
+        const QUESTIONS = [
+            { id: 1, step: 1, category: "학업 성향", hippoMsg: "먼저 너의 최근 학교 성적 성향을 솔직하게 알려줘!", type: "sliderGroup", title: "최근 학기 주과목별 스스로 느끼는 성적/이해도 수준은 어떤가요?", sub: "각 과목의 슬라이더를 편하게 움직여주세요. (1점: 어려움 ~ 5점: 매우 우수)", fields: [{ name: "korean", label: "국어 / 문학", val: 3 }, { name: "math", label: "수학 / 논리", val: 3 }, { name: "english", label: "영어 / 외국어", val: 3 }, { name: "science", label: "과학 / 탐구", val: 3 }, { name: "social", label: "사회 / 역사", val: 3 }] },
+            { id: 2, step: 1, category: "학업 성향", hippoMsg: "어떤 공부를 할 때 마음이 더 끌리고 시간이 잘 가니?", type: "singleChoice", title: "수업 시간 중 내가 가장 집중하거나 재밌게 느껴지는 과목 군은?", options: [{ label: "수학 / 과학 / 정보 (원리 파악, 정답이 명확한 과목)", scoreKey: "STEM", val: 5 }, { label: "국어 / 영어 / 제2외국어 (글 읽기, 표현 및 언어 과목)", scoreKey: "HUMANITIES", val: 5 }, { label: "사회 / 역사 / 윤리 (사람, 사회 현상, 역사 파악)", scoreKey: "SOCIAL", val: 5 }, { label: "미술 / 음악 / 체육 / 기술가정 (실습, 예체능, 만들기)", scoreKey: "ARTS", val: 5 }] },
+            { id: 3, step: 1, category: "학업 성향", hippoMsg: "예체능이나 기타 실습 과목에 대한 흥미도 궁금해!", type: "scale5", title: "체육, 미술, 음악, 코딩/기술 등 직접 체험하고 창작하는 과목을 좋아한다.", scoreKey: "ARTS" },
+            { id: 4, step: 1, category: "학업 성향", hippoMsg: "수학이나 과학 같은 논리적 과목을 풀 때 어때?", type: "scale5", title: "복잡한 수식이나 논리적 원리를 추론하여 문제를 풀어내는 것에 흥미를 느낀다.", scoreKey: "STEM" },
+            { id: 5, step: 1, category: "학업 성향", hippoMsg: "글을 읽고 사회 문제에 대해 토론하는 것은 어떠니?", type: "scale5", title: "다양한 사회 이슈를 다루거나 문학 작품의 인물 심리를 읽어내는 것이 즐겁다.", scoreKey: "SOCIAL" },
+            { id: 6, step: 2, category: "공부 성격", hippoMsg: "너는 보통 혼자 공부하는 편이니, 친구들과 함께하는 편이니?", type: "singleChoice", title: "시험 기간이나 과제를 할 때 내가 선호하는 공부 환경은?", options: [{ label: "조용한 스터디카페에서 나만의 계획대로 혼자 몰입하기", scoreKey: "INDEPENDENT", val: 5 }, { label: "친구들과 문제풀이를 서로 물어보고 스터디 그룹으로 공부하기", scoreKey: "COLLABORATIVE", val: 5 }, { label: "선생님이나 튜터의 명확한 가이드와 지도를 받으며 따라가기", scoreKey: "STRUCTURED", val: 5 }, { label: "자유로운 카페에서 음악을 들으며 창의적으로 정리하기", scoreKey: "CREATIVE", val: 5 }] },
+            { id: 7, step: 2, category: "공부 성격", hippoMsg: "어려운 문제를 만났을 때 너의 반응이 궁금해!", type: "singleChoice", title: "막히는 난이도 높은 문제가 나왔을 때 나는 주로 어떻게 해결하나요?", options: [{ label: "해답지를 보지 않고 몇 시간이라도 끝까지 고민해서 풀어본다.", scoreKey: "STEM", val: 4 }, { label: "선생님이나 친구에게 막히는 부분을 적극적으로 질문해서 원리를 파악한다.", scoreKey: "SOCIAL", val: 4 }, { label: "개념서를 다시 찾아보며 연관된 기본 이론부터 차근차근 다진다.", scoreKey: "STRUCTURED", val: 4 }, { label: "비슷한 유형의 다른 쉬운 문제를 여러 개 풀어보며 패턴을 익힌다.", scoreKey: "DATA", val: 4 }] },
+            { id: 8, step: 2, category: "공부 성격", hippoMsg: "계획표 짜는 거 좋아해? 아니면 느낌 가는 대로?", type: "scale5", title: "공부를 시작하기 전에 일일 계획 플래너나 시간표를 치밀하게 작성하는 편이다.", scoreKey: "STRUCTURED" },
+            { id: 9, step: 2, category: "공부 성격", hippoMsg: "새로운 걸 배울 때 단순 암기보다 원리 이해가 중요하지!", type: "scale5", title: "단순히 공식을 외우기보다는 '왜 이런 결과가 나왔는지' 근본적 이유를 이해해야 직성이 풀린다.", scoreKey: "STEM" },
+            { id: 10, step: 2, category: "공부 성격", hippoMsg: "노트 정리나 필기는 어떤 방식으로 하는 편이야?", type: "scale5", title: "색깔 펜이나 마인드맵, 다이어그램 등을 활용해 시각적으로 예쁘고 보기 쉽게 정리하는 것을 좋아한다.", scoreKey: "ARTS" },
+            { id: 11, step: 2, category: "공부 성격", hippoMsg: "발표 수업이나 모둠 활동에서의 너의 모습은?", type: "scale5", title: "팀 프로젝트나 발표 과제에서 기꺼이 리더를 맡거나 모둠원들의 의견을 모으는 역할을 즐긴다.", scoreKey: "LEADERSHIP" },
+            { id: 12, step: 2, category: "공부 성격", hippoMsg: "공부할 때 긴 시간 집중을 잘 유지하니?", type: "scale5", title: "한 가지 주제나 흥미 있는 과목에 빠지면 몇 시간 동안 집중력을 잃지 않고 몰입할 수 있다.", scoreKey: "INDEPENDENT" },
+            { id: 13, step: 3, category: "직업 흥미", hippoMsg: "이제 다양한 활동들에 대한 너의 흥미를 알아볼 거야!", type: "scale5", title: "고장 난 전자제품이나 기계, 물건을 직접 도구로 뜯어보고 수리하는 활동을 좋아한다.", scoreKey: "REALISTIC" },
+            { id: 14, step: 3, category: "직업 흥미", hippoMsg: "데이터나 숫자 분석은 어때?", type: "scale5", title: "복잡한 수치 데이터를 엑셀이나 그래프로 정리하고 패턴을 분석하는 것이 흥미롭다.", scoreKey: "DATA" },
+            { id: 15, step: 3, category: "직업 흥미", hippoMsg: "그림이나 영상, 음악 제작은 어떤 느낌이니?", type: "scale5", title: "나만의 독창적인 아이디어로 디자인, 영상, 글, 음악 등 창작물을 만드는 일에 관심이 크다.", scoreKey: "ARTS" },
+            { id: 16, step: 3, category: "직업 흥미", hippoMsg: "고민 있는 친구의 이야기를 잘 들어주는 편이지?", type: "scale5", title: "남의 고민을 깊이 들어주고 도움이 되는 조언을 해줄 때 큰 보람을 느낀다.", scoreKey: "SOCIAL" },
+            { id: 17, step: 3, category: "직업 흥미", hippoMsg: "아이디어를 사람들에게 전달하고 설득하는 일은?", type: "scale5", title: "사람들 앞에서 새로운 프로젝트나 상품을 발표하고 설득하여 반응을 끌어내는 것에 자신 있다.", scoreKey: "LEADERSHIP" },
+            { id: 18, step: 3, category: "직업 흥미", hippoMsg: "컴퓨터 프로그램이나 소프트웨어 작성은 어때?", type: "scale5", title: "컴퓨터 알고리즘, 앱 만들기, AI 기술 등을 공부하고 직접 코딩하는 것에 흥미가 있다.", scoreKey: "STEM" },
+            { id: 19, step: 3, category: "직업 흥미", hippoMsg: "사람들의 건강과 의학 분야에 대한 흥미는?", type: "scale5", title: "인체의 구조, 생명 과학, 질병 치료나 바이오 기술에 대해 탐구하고 싶다.", scoreKey: "HEALTHCARE" },
+            { id: 20, step: 3, category: "직업 흥미", hippoMsg: "경영이나 비즈니스 아이디어 생각하기!", type: "scale5", title: "창업을 하거나 새로운 비즈니스 모델을 기획해 수익을 창출하는 상상을 자주 한다.", scoreKey: "LEADERSHIP" },
+            { id: 21, step: 3, category: "직업 흥미", hippoMsg: "자연 환경이나 동물, 식물 가꾸기!", type: "scale5", title: "동물이나 식물을 보살피거나 지구 환경 및 생태계 보호 관련 일에 끌린다.", scoreKey: "REALISTIC" },
+            { id: 22, step: 3, category: "직업 흥미", hippoMsg: "언어나 외국어로 소통하는 재미!", type: "scale5", title: "외국어를 배워 다양한 문화권의 사람들과 교류하고 번역/통역하는 것에 매력을 느낀다.", scoreKey: "HUMANITIES" },
+            { id: 23, step: 3, category: "직업 흥미", hippoMsg: "법이나 사회 규칙, 정책 관련!", type: "scale5", title: "사회적 규칙이나 법률, 정의로운 사회를 만드는 정책 수립 등에 흥미가 있다.", scoreKey: "SOCIAL" },
+            { id: 24, step: 3, category: "직업 흥미", hippoMsg: "실험실에서 연구 탐구하는 것은 어떠니?", type: "scale5", title: "실험 도구를 활용해 신물질이나 새로운 이론을 가설검증하며 탐구하는 것을 선호한다.", scoreKey: "STEM" },
+            { id: 25, step: 4, category: "직업 가치관", hippoMsg: "내가 직업을 택할 때 가장 중요하게 생각하는 가치는 뭘까?", type: "singleChoice", title: "내가 장래에 직업을 선택할 때 '가장 절대 타협할 수 없는 최고의 가치'는?", options: [{ label: "안정성 (잘릴 염려 없이 오랜 기간 안정적으로 일할 수 있는 환경)", scoreKey: "VAL_STABILITY", val: 5 }, { label: "높은 경제적 보상 (내가 노력한 만큼 높은 연봉과 상여금을 받는 것)", scoreKey: "VAL_MONEY", val: 5 }, { label: "워라밸 & 자율성 (개인 여가 시간이 보장되고 자유롭게 일하는 환경)", scoreKey: "VAL_BALANCE", val: 5 }, { label: "사회적 봉사 & 기여 (타인에게 도움이 되고 세상을 따뜻하게 바꾸는 일)", scoreKey: "VAL_SERVICE", val: 5 }] },
+            { id: 26, step: 4, category: "직업 가치관", hippoMsg: "직장에서 인정받는 느낌이 중요하다면?", type: "scale5", title: "내가 한 성과에 대해 사람들로부터 사회적으로 높은 명성과 인정을 받는 것이 매우 중요하다.", scoreKey: "VAL_REPUTATION" },
+            { id: 27, step: 4, category: "직업 가치관", hippoMsg: "매일 똑같은 일vs매일 새로운 도전?", type: "scale5", title: "지루하고 반복적인 업무보다는 매일 새로운 문제와 아이디어를 시도하는 직업을 원한다.", scoreKey: "CREATIVE" },
+            { id: 28, step: 4, category: "직업 가치관", hippoMsg: "퇴근 후 내 취미 생활 시간 보장!", type: "scale5", title: "야근이나 주말 근무 없이 정시 퇴근하여 내 개인 삶을 누리는 것이 경제적 보상보다 중요하다.", scoreKey: "VAL_BALANCE" },
+            { id: 29, step: 4, category: "직업 가치관", hippoMsg: "끊임없이 성장하고 전문성을 쌓는 삶!", type: "scale5", title: "한 분야의 독보적인 최고 전문가(Pro)로 끊임없이 발전하는 성취감이 삶의 원동력이다.", scoreKey: "VAL_EXPERTISE" },
+            { id: 30, step: 4, category: "직업 가치관", hippoMsg: "함께 협력하는 따뜻한 팀 분위기!", type: "scale5", title: "치열한 경쟁보다는 동료들과 상호 존중하며 화목하게 협력하는 조직 문화를 원한다.", scoreKey: "SOCIAL" },
+            { id: 31, step: 4, category: "직업 가치관", hippoMsg: "내 손으로 만드는 세상의 변화!", type: "scale5", title: "내가 만드는 서비스나 제품이 사람들의 삶을 더 편하게 해준다는 실질적 보람이 중요하다.", scoreKey: "VAL_SERVICE" },
+            { id: 32, step: 4, category: "직업 가치관", hippoMsg: "높은 연봉과 확실한 인센티브!", type: "scale5", title: "열심히 일한 대가로 확실한 경제적 수입과 물질적 풍요를 얻는 것이 삶의 커다란 목표다.", scoreKey: "VAL_MONEY" },
+            { id: 33, step: 4, category: "직업 가치관", hippoMsg: "규칙이 정해진 안전한 직장!", type: "scale5", title: "위험 부담이 큰 도박보다는 체계적이고 안정된 시스템 안에서 정해진 일을 수행하는 게 편하다.", scoreKey: "VAL_STABILITY" },
+            { id: 34, step: 5, category: "적성 및 성격", hippoMsg: "거의 다 왔어! 이제 너의 타고난 멋진 강점들을 알아보자!", type: "scale5", title: "어떤 문제가 발생했을 때 감정에 치우치지 않고 원인과 결과를 냉철하게 분석하는 편이다.", scoreKey: "STEM" },
+            { id: 35, step: 5, category: "적성 및 성격", hippoMsg: "타인의 표정이나 기분 변화를 잘 알아채니?", type: "scale5", title: "말하지 않아도 타인의 감정 상태나 분위기를 세심하게 잘 파악하고 공감한다.", scoreKey: "SOCIAL" },
+            { id: 36, step: 5, category: "적성 및 성격", hippoMsg: "작은 실수도 꼼꼼히 체크하는 디테일함!", type: "scale5", title: "서류나 오탈자, 숫자의 작은 오류도 놓치지 않고 꼼꼼히 검토하는 세심함이 있다.", scoreKey: "DATA" },
+            { id: 37, step: 5, category: "적성 및 성격", hippoMsg: "새로운 낯선 환경에서도 금방 적응해?", type: "scale5", title: "처음 만나는 사람이나 새로운 환경에서도 어색함 없이 금방 친해지고 적응한다.", scoreKey: "LEADERSHIP" },
+            { id: 38, step: 5, category: "적성 및 성격", hippoMsg: "남들과 다른 엉뚱하고 재미있는 상상!", type: "scale5", title: "남들이 생각하지 못한 독창적이고 독특한 각도로 문제를 바라보는 상상력이 풍부하다.", scoreKey: "ARTS" },
+            { id: 39, step: 5, category: "적성 및 성격", hippoMsg: "갑작스러운 변화에도 침착하게 해결!", type: "scale5", title: "예상치 못한 순발력이 필요한 상황에서도 당황하지 않고 빠르게 대안을 찾아낸다.", scoreKey: "VAL_EXPERTISE" },
+            { id: 40, step: 5, category: "적성 및 성격", hippoMsg: "내가 맡은 일은 끝까지 책임지는 성실함!", type: "scale5", title: "누가 보지 않더라도 나에게 주어진 책임과 약속은 정직하게 완수한다.", scoreKey: "VAL_STABILITY" },
+            { id: 41, step: 5, category: "적성 및 성격", hippoMsg: "공간감이나 미술적 감각은 어때?", type: "scale5", title: "공간의 구조, 색감의 조화, 디자인적 미의식을 판단하는 감각이 남들보다 뛰어난 편이다.", scoreKey: "ARTS" },
+            { id: 42, step: 5, category: "적성 및 성격", hippoMsg: "마지막 질문이야! 내 꿈에 대해 끝까지 도전하는 열정!", type: "scale5", title: "어려움이 닥쳐도 쉽게 포기하지 않고 끝까지 추진하는 끈기와 집념이 있다.", scoreKey: "VAL_EXPERTISE" }
+        ];
 
-            if (stageNum === 1) {
-                title.innerText = "STAGE 1: 복도 몰래 빠져나가기";
-                desc.innerHTML = "선생님이 칠판을 볼 때만 이동하세요!<br>뒤돌아볼 때 <strong>Space키</strong>를 눌러 상자 뒤에 숨어야 합니다.";
-            } else if (stageNum === 2) {
-                title.innerText = "STAGE 2: 하원길 장애물 피하기";
-                desc.innerHTML = "좌우 방향키(←, →)로 셔틀버스, 엄카(?), 숙제 폭탄을 피하세요!<br><strong>버블티🧋</strong>를 먹으면 점수 보너스!";
-            } else if (stageNum === 3) {
-                title.innerText = "STAGE 3: 핑계대기 최후의 배틀";
-                desc.innerHTML = "선생님의 의심 공격! 제한시간 내에 가장 그럴듯한 핑계를 선택하세요!";
+        const JOB_DATABASE = [
+            { id: "ai_engineer", categoryKey: "STEM", categoryName: "SW & 인공지능 (IT/Tech)", title: "AI 및 데이터 인공지능 전문가", summary: "방대한 데이터를 학습시켜 사람처럼 사고하는 AI 모델과 알고리즘을 개발합니다.", image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&w=600&q=80", tasks: "빅데이터 수집 및 분석, 머신러닝/딥러닝 모델 설계, 자동화 AI 서비스 개발 및 최적화 작업을 수행합니다.", traits: "논리적 분석력, 수리적 사고, 문제 해결을 즐기는 집념, 최신 기술 습득을 위한 자기주도성", majors: "컴퓨터공학과, 인공지능학과, 데이터사이언스학과, 통계학과", outlook: "★★★★★ (매우 높음) / 평균 연봉 상위권 / IT 기업, 연구소, 금융권 진출" },
+            { id: "sw_developer", categoryKey: "STEM", categoryName: "SW & 인공지능 (IT/Tech)", title: "풀스택 소프트웨어 개발자", summary: "웹 애플리케이션, 스마트폰 앱 등 사람들이 매일 쓰는 디지털 서비스를 구축합니다.", image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=600&q=80", tasks: "사용자 화면 UI 개발, 서버 데이터베이스 구축, 시스템 보안 검증 및 지속적 기능 업데이트", traits: "꼼꼼한 코드 작성 능력, 팀원과의 원활한 소통, 논리적 사고력, 지속적 배움의 태도", majors: "소프트웨어학과, 컴퓨터공학과, 정보통신공학과", outlook: "★★★★★ (매우 높음) / 스타트업부터 대기업까지 광범위한 수요" },
+            { id: "robotics_engineer", categoryKey: "STEM", categoryName: "공학 & 로봇/신기술", title: "로봇 공학 기술자", summary: "산업용 로봇, 의료 로봇, 자율주행 로봇 등의 하드웨어와 소프트웨어를 디자인합니다.", image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80", tasks: "기계 제어 장치 설계, 로봇 움직임 센서 프로그래밍, 자율주행 테스트 및 성능 개선", traits: "창의적 공간 지각력, 기계/물리 법칙에 대한 이해, 시스템적 사고력", majors: "기계공학과, 로봇공학과, 제어계측공학과, 메카트로닉스공학과", outlook: "★★★★☆ (높음) / 스마트 팩토리, 자율주행차, 의료 로봇 분야 확산" },
+            { id: "bio_researcher", categoryKey: "HEALTHCARE", categoryName: "바이오 & 신약/의학", title: "바이오 신약 연구원", summary: "질병을 치료하는 백신, 신약 및 바이오 신소재를 연구하고 개발합니다.", image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=600&q=80", tasks: "유전자 분석, 세포 실험, 신약 물질 가설 검증, 임상 시험 데이터 분석 및 연구 논문 작성", traits: "탐구심, 실험 관찰의 세심함, 생명에 대한 존중, 긴 연합 연구를 견디는 성실함", majors: "생명공학과, 약학과, 바이오시스템학과, 화학과", outlook: "★★★★★ (매우 높음) / 글로벌 제약사, 국가 연구소, 바이오 벤처" },
+            { id: "clinical_psychologist", categoryKey: "HEALTHCARE", categoryName: "보건 & 심리 상담", title: "임상 심리사 & 멘탈 헬스 케어 전문가", summary: "현대인의 마음 건강과 정서적 어려움을 진단하고 정서적 치유 솔루션을 제공합니다.", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80", tasks: "심리 검사 실시 및 분석, 상담 치료 진행, 스트레스 완화 프로그램 기획, 행동 치료 가이드", traits: "깊은 공감 능력, 경청하는 자세, 감정 조절 능력, 인간 행동에 대한 깊은 사색", majors: "심리학과, 임상심리학과, 상담학과", outlook: "★★★★☆ (높음) / 병원, 상담 센터, 기업 멘탈케어 부서, 학교" },
+            { id: "ux_ui_designer", categoryKey: "ARTS", categoryName: "디지털 콘텐츠 & 디자인", title: "UX/UI 디자이너", summary: "스마트폰 앱이나 웹사이트의 시각적 디자인과 사용자 편의 경험을 설계합니다.", image: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=600&q=80", tasks: "사용자 인터페이스 화면 구성, 와이어프레임 및 디자인 시스템 제작, 사용자 사용성 테스트", traits: "시각적 감각, 사용자의 행동을 관찰하는 공감력, 그래픽 툴 활용 능력", majors: "시각디자인학과, 산업디자인학과, 미디어아트학과", outlook: "★★★★☆ (높음) / IT 기업, 디자인 에이전시, 게임 회사" },
+            { id: "contents_creator", categoryKey: "ARTS", categoryName: "미디어 & 콘텐츠 브랜딩", title: "미디어 콘텐츠 크리에이티브 디렉터", summary: "유튜브, 소셜미디어, 방송 영상 등 흥미진진한 영상 콘텐츠를 기획하고 연출합니다.", image: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=600&q=80", tasks: "영상 기획 및 대본 작성, 촬영 및 영상 편집, 트렌드 분석 및 브랜드 마케팅", traits: "트렌드 캐치 능력, 독창적인 아이디어, 대중과의 소통 능력, 편집 기술", majors: "신문방송학과, 미디어영상학과, 연극영화과, 광고홍보학과", outlook: "★★★★☆ (높음) / 미디어 제작사, 엔터테인먼트, 프리랜서, 크리에이터" },
+            { id: "edu_tech_expert", categoryKey: "SOCIAL", categoryName: "교육 & 미래 인재 개발", title: "에듀테크 교육 콘텐츠 기획자", summary: "학생들이 쉽고 재밌게 공부할 수 있도록 맞춤형 디지털 교육 프로그램을 개발합니다.", image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80", tasks: "학습자 수준별 교재 및 앱 콘텐츠 설계, 가상현실/게임형 학습 기획, 학습 효과 분석", traits: "교육에 대한 열정, 전달력, 학생 성장에 대한 보람, 창의적 학습 기획력", majors: "교육학과, 국어/수학/영어 교육과, 컴퓨터교육과", outlook: "★★★★☆ (높음) / 에듀테크 기업, 공교육 기관, 교육 연구소" },
+            { id: "social_consultant", categoryKey: "SOCIAL", categoryName: "공공 정책 & 사회 혁신", title: "ESG 지속가능경영 컨설턴트", summary: "기업이 환경(E), 사회적 책임(S), 투명한 경영(G)을 잘 실천하도록 가이드합니다.", image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80", tasks: "기업의 탄소 배출 및 사회 공헌 평가, 지속가능보고서 작성, 친환경 경영 전략 수립", traits: "비판적 사고, 사회 문제에 대한 관심, 논리적 분석 및 보고서 작성 능력", majors: "경영학과, 환경공학과, 행정학과, 사회학과", outlook: "★★★★★ (매우 높음) / 대기업 컨설팅, 글로벌 평가 기관, 공공기관" },
+            { id: "brand_marketer", categoryKey: "LEADERSHIP", categoryName: "비즈니스 & 기획 마케팅", title: "글로벌 브랜드 전략 마케터", summary: "제품이나 브랜드의 가치를 높이고 사람들에게 알리는 마케팅 전략을 기획합니다.", image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=600&q=80", tasks: "시장 조사 및 소비자 심리 분석, 광고 캠페인 집행, 프로모션 기획, 매출 데이터 분석", traits: "사람의 마음을 읽는 통찰력, 설득력 있는 대화 기술, 데이터 기반 판단력", majors: "경영학과, 광고홍보학과, 신문방송학과, 심리학과", outlook: "★★★★☆ (높음) / 글로벌 기업, 마케팅 대행사, 소비재 기업" }
+        ];
+
+        let currentQuestionIdx = 0;
+        let userAnswers = {};
+        let scores = { STEM: 0, HUMANITIES: 0, SOCIAL: 0, ARTS: 0, HEALTHCARE: 0, REALISTIC: 0, DATA: 0, LEADERSHIP: 0, STRUCTURED: 0, INDEPENDENT: 0, VAL_STABILITY: 0, VAL_MONEY: 0, VAL_BALANCE: 0, VAL_SERVICE: 0, VAL_EXPERTISE: 0, VAL_REPUTATION: 0 };
+
+        function navTo(screen) {
+            document.getElementById('homeSection').classList.add('hidden');
+            document.getElementById('testSection').classList.add('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+
+            const resetBtn = document.getElementById('navResetBtn');
+
+            if (screen === 'home') {
+                document.getElementById('homeSection').classList.remove('hidden');
+                resetBtn.classList.add('hidden');
+                document.getElementById('headerStatusMsg').innerText = "꿈을 찾아가는 여정";
+            } else if (screen === 'test') {
+                document.getElementById('testSection').classList.remove('hidden');
+                resetBtn.classList.remove('hidden');
+                document.getElementById('headerStatusMsg').innerText = "진로 진단 진행 중";
+            } else if (screen === 'result') {
+                document.getElementById('resultSection').classList.remove('hidden');
+                resetBtn.classList.remove('hidden');
+                document.getElementById('headerStatusMsg').innerText = "진단 결과 리포트";
             }
-            showScreen('stage-intro');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function startCurrentStage() {
-            showScreen(null);
-            if (gameLoopId) cancelAnimationFrame(gameLoopId);
-
-            if (currentStage === 1) Stage1.init();
-            else if (currentStage === 2) Stage2.init();
-            else if (currentStage === 3) Stage3.init();
+        function startTest() {
+            currentQuestionIdx = 0;
+            userAnswers = {};
+            Object.keys(scores).forEach(k => scores[k] = 0);
+            navTo('test');
+            renderQuestion();
         }
 
-        function gameOver(reason) {
-            sound.playFail();
-            if (gameLoopId) cancelAnimationFrame(gameLoopId);
-            if (Stage3.timerInterval) clearInterval(Stage3.timerInterval);
-            
-            // 점수를 해당 단계 시작할 때 점수로 복구
-            score = stageStartScore;
-            updateHUD();
-
-            document.getElementById('fail-reason').innerText = reason;
-            showScreen('game-over-screen');
+        function restartTestPrompt() {
+            if (confirm("처음부터 다시 검사를 시작하시겠어요? 이전 응답은 초기화됩니다.")) {
+                startTest();
+            }
         }
 
-        function restartStage() {
-            setupStageIntro(currentStage);
-        }
+        function renderQuestion() {
+            const q = QUESTIONS[currentQuestionIdx];
+            const total = QUESTIONS.length;
+            const progressPct = Math.round(((currentQuestionIdx + 1) / total) * 100);
 
-        function clearStage() {
-            sound.playSuccess();
-            if (gameLoopId) cancelAnimationFrame(gameLoopId);
-            score += 1000;
-            
-            if (currentStage < 3) {
-                const nextStage = currentStage + 1;
-                saveProgress(nextStage, score); // 진행상황 자동 저장!
-                stageStartScore = score;
-                setupStageIntro(nextStage);
+            document.getElementById('stepBadge').innerText = `Step ${q.step}/5`;
+            document.getElementById('hippoSpeech').innerText = `"${q.hippoMsg}"`;
+            document.getElementById('currentCategoryTitle').innerText = `${q.step}단계: ${q.category}`;
+            document.getElementById('progressText').innerText = `${currentQuestionIdx + 1} / ${total} (${progressPct}%)`;
+            document.getElementById('progressBar').style.width = `${progressPct}%`;
+
+            document.getElementById('prevBtn').disabled = (currentQuestionIdx === 0);
+
+            const nextBtnText = document.getElementById('nextBtnText');
+            if (currentQuestionIdx === total - 1) {
+                nextBtnText.innerText = "진단 결과 보기";
             } else {
-                localStorage.removeItem('academy_escape_stage');
-                localStorage.removeItem('academy_escape_score');
-                showGameClear();
+                nextBtnText.innerText = "다음 문항";
             }
-        }
 
-        function showGameClear() {
-            document.getElementById('hud').classList.add('hidden');
-            document.getElementById('final-score').innerText = `최종 점수: ${score}`;
-            
-            let ach = "칭호: 일반 탈출러";
-            if (score >= 4000) ach = "🏆 칭호: 전설의 땡땡이 마스터";
-            else if (score >= 3000) ach = "🎖️ 칭호: 스텔스 핑계의 왕";
-            
-            document.getElementById('achievement').innerText = ach;
-            showScreen('game-clear-screen');
-        }
+            const container = document.getElementById('questionBody');
+            container.innerHTML = '';
 
-        // ==========================================
-        // STAGE 1: 복도 탈출
-        // ==========================================
-        const Stage1 = {
-            player: { x: 50, y: 450, w: 40, h: 60, speed: 4, isHiding: false },
-            teacher: { state: 'writing', timer: 0, nextSwitch: 100 },
-            hidingSpots: [{ x: 250, w: 60 }, { x: 500, w: 60 }],
-            exitX: 720,
+            const headerHTML = `
+                <div class="space-y-2">
+                    <div class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-600">
+                        Q${q.id}. ${q.category}
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-extrabold text-gray-800 leading-snug">
+                        ${q.title}
+                    </h3>
+                    ${q.sub ? `<p class="text-xs text-gray-500">${q.sub}</p>` : ''}
+                </div>
+            `;
 
-            init() {
-                this.player.x = 50;
-                this.teacher.state = 'writing';
-                this.teacher.timer = 0;
-                this.loop();
-            },
+            let bodyHTML = '';
 
-            loop() {
-                this.update();
-                this.render();
-                if (currentStage === 1) gameLoopId = requestAnimationFrame(() => this.loop());
-            },
-
-            update() {
-                this.teacher.timer++;
-                if (this.teacher.timer > this.teacher.nextSwitch) {
-                    this.teacher.timer = 0;
-                    if (this.teacher.state === 'writing') {
-                        this.teacher.state = 'warning';
-                        this.teacher.nextSwitch = 45;
-                    } else if (this.teacher.state === 'warning') {
-                        this.teacher.state = 'looking';
-                        this.teacher.nextSwitch = 80 + Math.random() * 60;
-                    } else {
-                        this.teacher.state = 'writing';
-                        this.teacher.nextSwitch = 100 + Math.random() * 100;
-                    }
-                }
-
-                this.player.isHiding = keys['Space'];
-                
-                if (!this.player.isHiding) {
-                    if (keys['ArrowRight']) {
-                        this.player.x += this.player.speed;
-                        if (Math.random() < 0.1) sound.playStep();
-                    }
-                    if (keys['ArrowLeft']) this.player.x -= this.player.speed;
-                }
-
-                this.player.x = Math.max(20, Math.min(740, this.player.x));
-
-                const statusEl = document.getElementById('status-display');
-                if (this.player.isHiding) statusEl.innerText = "상태: 숨는 중 📦";
-                else statusEl.innerText = "상태: 이동 가능 🏃";
-
-                if (this.teacher.state === 'looking' && !this.player.isHiding) {
-                    let safe = false;
-                    for (let spot of this.hidingSpots) {
-                        if (this.player.x >= spot.x - 10 && (this.player.x + this.player.w) <= (spot.x + spot.w + 10)) {
-                            safe = true;
-                            break;
-                        }
-                    }
-                    if (!safe) {
-                        gameOver("선생님이 뒤돌아봤을 때 움직이다가 걸렸습니다!");
-                    }
-                }
-
-                if (this.player.x >= this.exitX) {
-                    clearStage();
-                }
-            },
-
-            render() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                ctx.fillStyle = '#34495e';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#2c3e50';
-                ctx.fillRect(0, 400, canvas.width, 200);
-
-                ctx.fillStyle = '#7f8c8d';
-                ctx.fillRect(700, 320, 80, 150);
-
-                ctx.font = '30px Jua';
-                if (this.teacher.state === 'writing') {
-                    ctx.fillStyle = '#2ecc71';
-                    ctx.fillText('👨‍🏫 판서 중 (안 보는 중)', 500, 100);
-                } else if (this.teacher.state === 'warning') {
-                    ctx.fillStyle = '#f1c40f';
-                    ctx.fillText('👨‍🏫 힐끔... (뒤돌기 직전!)', 500, 100);
-                } else {
-                    ctx.fillStyle = '#e74c3c';
-                    ctx.fillText('👨‍🏫 감시 중! (움직이지 마!)', 500, 100);
-                    ctx.fillStyle = 'rgba(231, 76, 60, 0.2)';
-                    ctx.fillRect(0, 0, 700, 600);
-                }
-
-                ctx.fillStyle = '#d35400';
-                for (let spot of this.hidingSpots) {
-                    ctx.fillRect(spot.x, 420, spot.w, 80);
-                    ctx.fillStyle = '#e67e22';
-                    ctx.fillText('📦', spot.x + 15, 470);
-                    ctx.fillStyle = '#d35400';
-                }
-
-                ctx.fillStyle = '#2ecc71';
-                ctx.fillRect(760, 400, 20, 100);
-                ctx.fillStyle = '#fff';
-                ctx.font = '16px Jua';
-                ctx.fillText('출구', 755, 390);
-
-                if (this.player.isHiding) {
-                    ctx.fillStyle = '#95a5a6';
-                    ctx.fillRect(this.player.x, this.player.y + 20, this.player.w, 40);
-                } else {
-                    ctx.fillStyle = '#3498db';
-                    ctx.fillRect(this.player.x, this.player.y, this.player.w, this.player.h);
-                    ctx.fillStyle = '#f1c40f';
-                    ctx.beginPath();
-                    ctx.arc(this.player.x + 20, this.player.y - 10, 15, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-        };
-
-        // ==========================================
-        // STAGE 2: 길거리 피하기
-        // ==========================================
-        const Stage2 = {
-            player: { lane: 1, y: 480, w: 50, h: 70 },
-            lanes: [200, 400, 600],
-            obstacles: [],
-            items: [],
-            spawnTimer: 0,
-            distanceLeft: 100,
-
-            init() {
-                this.player.lane = 1;
-                this.obstacles = [];
-                this.items = [];
-                this.spawnTimer = 0;
-                this.distanceLeft = 100;
-                this.lastKey = false;
-                this.loop();
-            },
-
-            loop() {
-                this.update();
-                this.render();
-                if (currentStage === 2) gameLoopId = requestAnimationFrame(() => this.loop());
-            },
-
-            update() {
-                if (keys['ArrowLeft'] && !this.lastKey) {
-                    if (this.player.lane > 0) this.player.lane--;
-                    this.lastKey = true;
-                } else if (keys['ArrowRight'] && !this.lastKey) {
-                    if (this.player.lane < 2) this.player.lane++;
-                    this.lastKey = true;
-                } else if (!keys['ArrowLeft'] && !keys['ArrowRight']) {
-                    this.lastKey = false;
-                }
-
-                this.distanceLeft -= 0.05;
-                if (this.distanceLeft <= 0) {
-                    clearStage();
-                    return;
-                }
-
-                this.spawnTimer++;
-                if (this.spawnTimer > 40) {
-                    this.spawnTimer = 0;
-                    const lane = Math.floor(Math.random() * 3);
-                    if (Math.random() < 0.7) {
-                        const types = ['🚌 학원버스', '🚗 엄마차', '📚 숙제폭탄'];
-                        this.obstacles.push({
-                            lane: lane,
-                            y: -100,
-                            speed: 6 + Math.random() * 3,
-                            type: types[Math.floor(Math.random() * types.length)]
-                        });
-                    } else {
-                        this.items.push({ lane: lane, y: -100, speed: 5 });
-                    }
-                }
-
-                for (let i = this.obstacles.length - 1; i >= 0; i--) {
-                    let obs = this.obstacles[i];
-                    obs.y += obs.speed;
-
-                    if (obs.lane === this.player.lane && obs.y > 400 && obs.y < 540) {
-                        gameOver(`${obs.type}에 충돌하여 붙잡혔습니다!`);
-                        return;
-                    }
-
-                    if (obs.y > 650) this.obstacles.splice(i, 1);
-                }
-
-                for (let i = this.items.length - 1; i >= 0; i--) {
-                    let item = this.items[i];
-                    item.y += item.speed;
-
-                    if (item.lane === this.player.lane && item.y > 420 && item.y < 540) {
-                        score += 200;
-                        sound.playBeep(800, 'sine', 0.1);
-                        this.items.splice(i, 1);
-                        updateHUD();
-                    } else if (item.y > 650) {
-                        this.items.splice(i, 1);
-                    }
-                }
-
-                document.getElementById('status-display').innerText = `남은 거리: ${Math.ceil(this.distanceLeft)}m`;
-            },
-
-            render() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                ctx.fillStyle = '#7f8c8d';
-                ctx.fillRect(100, 0, 600, 600);
-
-                ctx.strokeStyle = '#fff';
-                ctx.setLineDash([20, 20]);
-                ctx.lineWidth = 4;
-                ctx.beginPath();
-                ctx.moveTo(300, 0); ctx.lineTo(300, 600);
-                ctx.moveTo(500, 0); ctx.lineTo(500, 600);
-                ctx.stroke();
-                ctx.setLineDash([]);
-
-                ctx.font = '24px Jua';
-                for (let obs of this.obstacles) {
-                    ctx.fillStyle = '#e74c3c';
-                    ctx.fillRect(this.lanes[obs.lane] - 40, obs.y, 80, 60);
-                    ctx.fillStyle = '#fff';
-                    ctx.fillText(obs.type, this.lanes[obs.lane] - 35, obs.y + 35);
-                }
-
-                for (let item of this.items) {
-                    ctx.fillStyle = '#f39c12';
-                    ctx.beginPath();
-                    ctx.arc(this.lanes[item.lane], item.y + 20, 20, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#fff';
-                    ctx.fillText('🧋', this.lanes[item.lane] - 12, item.y + 28);
-                }
-
-                const px = this.lanes[this.player.lane];
-                ctx.fillStyle = '#3498db';
-                ctx.fillRect(px - 25, this.player.y, this.player.w, this.player.h);
-                ctx.fillStyle = '#f1c40f';
-                ctx.beginPath();
-                ctx.arc(px, this.player.y - 10, 15, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        };
-
-        // ==========================================
-        // STAGE 3: 핑계대기 배틀
-        // ==========================================
-        const Stage3 = {
-            currentQuestion: 0,
-            timeLeft: 100,
-            timerInterval: null,
-            questions: [
-                {
-                    q: "선생님: \"너 가방 싸서 어디 가니?!\"",
-                    options: [
-                        { text: "배가 너무 아파서 병원 가요! 🤢", correct: true, score: 300 },
-                        { text: "PC방 신메뉴 먹으러 가요 🍔", correct: false, reason: "솔직함이 과해서 정학당했습니다." },
-                        { text: "지구가 저를 불러서요 🦸", correct: false, reason: "선생님이 정신 상담을 예약하셨습니다." },
-                        { text: "오늘 학원 쉬는 날 아니었나요? 🤔", correct: false, reason: "뻔뻔해서 꿀밤을 맞았습니다." }
-                    ]
-                },
-                {
-                    q: "선생님: \"너 오늘 단어 시험은 어쩌고!\"",
-                    options: [
-                        { text: "꿈속에서 이미 다 맞혔습니다 😴", correct: false, reason: "자물쇠로 잠긴 교실로 끌려갔습니다." },
-                        { text: "머리가 아파서 단어가 안 외워져요 🤕", correct: true, score: 300 },
-                        { text: "단어가 제 마음을 거부합니다 💔", correct: false, reason: "감수성이 풍부하다며 시를 쓰게 되었습니다." },
-                        { text: "재시험 때 100점 맞을게요! 💯", correct: true, score: 400 }
-                    ]
-                },
-                {
-                    q: "선생님: \"엄마한테 전화해서 확인해본다?\"",
-                    options: [
-                        { text: "엄마도 허락하셨어요! (구라) 📱", correct: true, score: 500 },
-                        { text: "제발 그것만은... 😭", correct: false, reason: "울다가 엄마한테 바로 전화가 갔습니다." },
-                        { text: "전화기 배터리 없으실 텐데요 🔋", correct: false, reason: "선생님이 충전기를 꺼내셨습니다." },
-                        { text: "네! 엄마랑 지금 같이 병원 가기로 했어요! 🏥", correct: true, score: 500 }
-                    ]
-                }
-            ],
-
-            init() {
-                this.currentQuestion = 0;
-                showScreen('stage3-screen');
-                this.loadQuestion();
-            },
-
-            loadQuestion() {
-                if (this.currentQuestion >= this.questions.length) {
-                    clearInterval(this.timerInterval);
-                    clearStage();
-                    return;
-                }
-
-                const qData = this.questions[this.currentQuestion];
-                document.getElementById('qte-question').innerText = qData.q;
-                
-                const container = document.getElementById('qte-options');
-                container.innerHTML = '';
-
-                const shuffled = [...qData.options].sort(() => Math.random() - 0.5);
-
-                shuffled.forEach(opt => {
-                    const btn = document.createElement('button');
-                    btn.className = 'qte-btn';
-                    btn.innerText = opt.text;
-                    btn.onclick = () => this.selectOption(opt);
-                    container.appendChild(btn);
+            if (q.type === 'sliderGroup') {
+                bodyHTML = `<div class="space-y-4 pt-2">`;
+                q.fields.forEach(f => {
+                    const savedVal = userAnswers[q.id]?.[f.name] || 3;
+                    bodyHTML += `
+                        <div class="bg-amber-50/50 p-3.5 rounded-2xl border border-amber-100 space-y-2">
+                            <div class="flex justify-between items-center text-xs font-bold text-gray-700">
+                                <span>${f.label}</span>
+                                <span id="val_disp_${f.name}" class="text-rose-500 font-extrabold text-sm">${savedVal}점</span>
+                            </div>
+                            <input type="range" min="1" max="5" value="${savedVal}" class="w-full" 
+                                oninput="updateSliderVal(${q.id}, '${f.name}', this.value)">
+                            <div class="flex justify-between text-[10px] text-gray-400">
+                                <span>1점(어려움)</span>
+                                <span>3점(보통)</span>
+                                <span>5점(매우잘함)</span>
+                            </div>
+                        </div>
+                    `;
                 });
+                bodyHTML += `</div>`;
+            } 
+            else if (q.type === 'singleChoice') {
+                bodyHTML = `<div class="grid grid-cols-1 gap-3 pt-2">`;
+                q.options.forEach((opt, idx) => {
+                    const isSelected = (userAnswers[q.id]?.idx === idx);
+                    bodyHTML += `
+                        <button onclick="selectSingleOption(${q.id}, ${idx}, '${opt.scoreKey}', ${opt.val})" 
+                            class="choice-btn text-left p-4 rounded-2xl border border-gray-200 hover:border-rose-300 hover:bg-rose-50/50 transition-all text-xs sm:text-sm font-medium text-gray-700 flex items-center justify-between group ${isSelected ? 'active' : ''}">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-6 h-6 rounded-full border border-gray-300 group-hover:border-rose-400 flex items-center justify-center text-xs font-bold ${isSelected ? 'bg-rose-500 text-white border-rose-500' : 'text-gray-400'}">
+                                    ${idx + 1}
+                                </span>
+                                <span>${opt.label}</span>
+                            </div>
+                            <i class="fa-solid fa-check text-rose-500 opacity-0 group-hover:opacity-100 ${isSelected ? 'opacity-100' : ''}"></i>
+                        </button>
+                    `;
+                });
+                bodyHTML += `</div>`;
+            } 
+            else if (q.type === 'scale5') {
+                const currentVal = userAnswers[q.id]?.val || 0;
+                const scales = [
+                    { label: "전혀 아니다", score: 1 },
+                    { label: "아니다", score: 2 },
+                    { label: "보통이다", score: 3 },
+                    { label: "그렇다", score: 4 },
+                    { label: "매우 그렇다", score: 5 }
+                ];
 
-                this.timeLeft = 100;
-                clearInterval(this.timerInterval);
-                this.timerInterval = setInterval(() => {
-                    this.timeLeft -= 2;
-                    document.getElementById('timer-bar').style.width = `${this.timeLeft}%`;
-                    if (this.timeLeft <= 0) {
-                        clearInterval(this.timerInterval);
-                        gameOver("시간 초과! 말을 더듬다가 들켰습니다!");
-                    }
-                }, 100);
-            },
+                bodyHTML = `
+                    <div class="py-6 space-y-4">
+                        <div class="grid grid-cols-5 gap-2 sm:gap-3">
+                            ${scales.map(s => {
+                                const active = (currentVal === s.score);
+                                return `
+                                    <button onclick="selectScaleVal(${q.id}, ${s.score}, '${q.scoreKey}')"
+                                        class="flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl border transition-all ${active ? 'bg-rose-100 border-rose-400 text-rose-700 font-bold shadow-sm scale-105' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-rose-50/40'}">
+                                        <span class="text-base sm:text-xl font-bold mb-1">${s.score}</span>
+                                        <span class="text-[10px] sm:text-xs text-center line-clamp-1">${s.label}</span>
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
 
-            selectOption(opt) {
-                clearInterval(this.timerInterval);
-                if (opt.correct) {
-                    score += opt.score;
-                    sound.playBeep(600, 'sine', 0.1);
-                    this.currentQuestion++;
-                    this.loadQuestion();
+            container.innerHTML = headerHTML + bodyHTML;
+        }
+
+        function updateSliderVal(qId, fieldName, val) {
+            if (!userAnswers[qId]) userAnswers[qId] = {};
+            userAnswers[qId][fieldName] = parseInt(val);
+            document.getElementById(`val_disp_${fieldName}`).innerText = `${val}점`;
+        }
+
+        function selectSingleOption(qId, idx, scoreKey, scoreVal) {
+            userAnswers[qId] = { idx, scoreKey, scoreVal };
+            renderQuestion();
+        }
+
+        function selectScaleVal(qId, val, scoreKey) {
+            userAnswers[qId] = { val, scoreKey };
+            renderQuestion();
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIdx > 0) {
+                currentQuestionIdx--;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            const q = QUESTIONS[currentQuestionIdx];
+
+            if (!userAnswers[q.id]) {
+                if (q.type === 'sliderGroup') {
+                    userAnswers[q.id] = { korean: 3, math: 3, english: 3, science: 3, social: 3 };
                 } else {
-                    gameOver(opt.reason);
+                    alert("선택지를 골라주세요! 하미가 기다리고 있어요 🦛");
+                    return;
                 }
             }
-        };
 
-        // Initialize App
-        initGame();
+            if (currentQuestionIdx < QUESTIONS.length - 1) {
+                currentQuestionIdx++;
+                renderQuestion();
+            } else {
+                processAndShowResults();
+            }
+        }
+
+        function processAndShowResults() {
+            navTo('result');
+            document.getElementById('resultLoading').classList.remove('hidden');
+            document.getElementById('resultDashboard').classList.add('hidden');
+
+            Object.keys(scores).forEach(k => scores[k] = 0);
+
+            QUESTIONS.forEach(q => {
+                const ans = userAnswers[q.id];
+                if (!ans) return;
+
+                if (q.type === 'scale5') {
+                    if (ans.scoreKey && scores[ans.scoreKey] !== undefined) {
+                        scores[ans.scoreKey] += ans.val;
+                    }
+                } else if (q.type === 'singleChoice') {
+                    if (ans.scoreKey && scores[ans.scoreKey] !== undefined) {
+                        scores[ans.scoreKey] += ans.scoreVal;
+                    }
+                } else if (q.type === 'sliderGroup') {
+                    scores.STEM += (ans.math || 3) + (ans.science || 3);
+                    scores.HUMANITIES += (ans.korean || 3) + (ans.english || 3);
+                    scores.SOCIAL += (ans.social || 3);
+                }
+            });
+
+            setTimeout(() => {
+                document.getElementById('resultLoading').classList.add('hidden');
+                document.getElementById('resultDashboard').classList.remove('hidden');
+
+                renderResultsView();
+            }, 1200);
+        }
+
+        function renderResultsView() {
+            const categoryScores = [
+                { key: "STEM", name: "SW & 인공지능 / 첨단공학", desc: "논리적 분석력과 수학/과학 탐구심이 뛰어납니다.", score: scores.STEM },
+                { key: "HEALTHCARE", name: "바이오 & 헬스케어 / 생명과학", desc: "생명 존중과 실험 탐구 능력이 돋보입니다.", score: scores.HEALTHCARE },
+                { key: "ARTS", name: "창의 콘텐츠 & 미디어 디자인", desc: "창의적인 시각 표현과 미적 감각이 우수합니다.", score: scores.ARTS },
+                { key: "SOCIAL", name: "교육 & 사회 혁신 / 공공 정책", desc: "타인에 대한 공감 능력과 사회적 기여 의식이 높습니다.", score: scores.SOCIAL },
+                { key: "LEADERSHIP", name: "비즈니스 & 브랜드 마케팅", desc: "사람들을 끌어들이는 리더십과 아이디어가 뛰어납니다.", score: scores.LEADERSHIP }
+            ];
+
+            categoryScores.sort((a, b) => b.score - a.score);
+
+            const top2Fields = categoryScores.slice(0, 2);
+
+            const fieldsContainer = document.getElementById('recommendedFieldsContainer');
+            fieldsContainer.innerHTML = top2Fields.map((field, idx) => `
+                <div class="bg-white p-6 rounded-3xl border border-rose-100 shadow-soft hover:shadow-card-hover transition-all flex items-start space-x-4">
+                    <div class="w-12 h-12 rounded-2xl ${idx === 0 ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'} flex items-center justify-center font-bold text-xl flex-shrink-0">
+                        0${idx + 1}
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-[11px] font-bold text-rose-500 uppercase tracking-wide">적합도 최우수</span>
+                        <h4 class="text-lg font-extrabold text-gray-800">${field.name}</h4>
+                        <p class="text-xs text-gray-500 leading-relaxed">${field.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            let matchedJobs = JOB_DATABASE.filter(job => 
+                top2Fields.some(f => f.key === job.categoryKey)
+            );
+
+            if (matchedJobs.length < 5) {
+                const remaining = JOB_DATABASE.filter(j => !matchedJobs.includes(j));
+                matchedJobs = matchedJobs.concat(remaining.slice(0, 5 - matchedJobs.length));
+            } else if (matchedJobs.length > 5) {
+                matchedJobs = matchedJobs.slice(0, 5);
+            }
+
+            const jobsContainer = document.getElementById('topJobsContainer');
+            jobsContainer.innerHTML = matchedJobs.map((job, idx) => `
+                <div onclick="openJobModal('${job.id}')" 
+                    class="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-soft hover:shadow-card-hover hover:-translate-y-1 transition-all cursor-pointer flex flex-col justify-between group">
+                    <div>
+                        <div class="relative h-40 overflow-hidden">
+                            <img src="${job.image}" alt="${job.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-rose-500 shadow-sm">
+                                추천 ${idx + 1}위
+                            </div>
+                        </div>
+
+                        <div class="p-5 space-y-2">
+                            <span class="text-[11px] font-semibold text-gray-400">${job.categoryName}</span>
+                            <h4 class="text-lg font-extrabold text-gray-800 group-hover:text-rose-500 transition-colors">${job.title}</h4>
+                            <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">${job.summary}</p>
+                        </div>
+                    </div>
+
+                    <div class="px-5 pb-5 pt-2 flex items-center justify-between border-t border-gray-50">
+                        <span class="text-xs font-bold text-rose-400 group-hover:underline">상세 리포트 보기</span>
+                        <i class="fa-solid fa-arrow-right text-xs text-rose-400 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openJobModal(jobId) {
+            const job = JOB_DATABASE.find(j => j.id === jobId);
+            if (!job) return;
+
+            document.getElementById('modalJobImg').src = job.image;
+            document.getElementById('modalJobCategory').innerText = job.categoryName;
+            document.getElementById('modalJobTitle').innerText = job.title;
+            document.getElementById('modalJobSummary').innerText = job.summary;
+
+            document.getElementById('modalJobTasks').innerText = job.tasks;
+            document.getElementById('modalJobTraits').innerText = job.traits;
+            document.getElementById('modalJobMajors').innerText = job.majors;
+            document.getElementById('modalJobOutlook').innerText = job.outlook;
+
+            const modal = document.getElementById('jobDetailModal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('jobDetailModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
     </script>
-</body>
-</html>
+
+</body></html>
